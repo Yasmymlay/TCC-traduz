@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataforma de Aulas</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Barra de Navegação -->
+    <header>
+        <div class="logo" data-pt="🎓 Minha Aulas" data-es="🎓 Mis Clases">🎓 Minhas Aulas</div>
+        <div class="idioma-selector">
+            <button id="btn-pt" class="active" onclick="mudarIdioma('pt')">PT</button>
+            <button id="btn-es" onclick="mudarIdioma('es')">ES</button>
+        </div>
+    </header>
+
+    <!-- Banner Principal -->
+    <section class="banner">
+        <h1 data-pt="Bem-vindo à sua Plataforma de Estudos" data-es="Bienvenido a sua Plataforma de Estudios">Bem-vindo à sua Plataforma de Estudos</h1>
+        <p data-pt="Aprenda no seu próprio ritmo com os melhores conteúdos." data-es="Aprende a tu propio ritmo con los mejores contenidos.">Aprenda no seu próprio ritmo com os melhores conteúdos.</p>
+    </section>
+
+    
+    <script src="script.js"></script>
+</body>
+</html>
+<!-- Grade de Aulas -->
+<main class="container">
+    <h2 data-pt="Aulas Disponíveis" data-es="Clases Disponibles">Aulas Disponíveis</h2>
+    
+    <div class="grid-aulas">
+        
+        <!-- Bloco 1: Caderno de Resolução -->
+        <div class="card-aula">
+            <span class="id-bimestre">ID: 160486 - 3º Bimestre</span>
+            <h3 data-pt="Caderno de Resolução - Língua Portuguesa" data-es="Cuaderno de Resolución - Língua Portuguesa">Caderno de Resolução - Língua Portuguesa</h3>
+            
+            <div class="materiais-section">
+                <h4 data-pt="Materiais" data-es="Materiales">Materiais</h4>
+                <!-- Link que abre o PDF em uma nova aba -->
+                <a href="materiais/caderno-resolucao.pdf" target="_blank" class="btn-pdf">
+                    <span></span> <img src="https://flaticon.com" alt="PDF" class="icon-pdf"> PDF
+                </a>
+            </div>
+        </div>
+
+        <!-- Bloco 2: Aula 1 -->
+        <div class="card-aula">
+            <span class="id-bimestre">ID: 148091 - 3º Bimestre</span>
+            <h3 data-pt="Aula 1 - Variação e norma – Parte 1 (versão3)" data-es="Clase 1 - Variación y norma – Parte 1 (versión3)">Aula 1 - Variação e norma – Parte 1 (versão3)</h3>
+            
+            <div class="materiais-section">
+                <h4 data-pt="Materiais" data-es="Materiales">Materiais</h4>
+                <!-- Link que faz o download direto do PDF -->
+                <a href="materiais/aula1-variacao.pdf" download="Aula_1_Variacao_e_Norma.pdf" class="btn-pdf">
+                    <span>Aula 01</span> <img src="https://flaticon.com" alt="PDF" class="icon-pdf"> PDF
+                </a>
+            </div>
+        </div>
+
+    </div>/main><div class="language-switcher">
+    <button class="lang-btn active">PT</button>
+    <button class="lang-btn">ES</button>
+    <button class="lang-btn">EN</button>
+  </div>
+
