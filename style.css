@@ -18,6 +18,7 @@ body {
 
 /* =====================================
    CABEÇALHO
+
 ===================================== */
 
 header {
@@ -466,4 +467,544 @@ footer {
         flex-direction: column;
     }
 
+}
+/* =====================================
+   CONFIGURAÇÕES GERAIS
+===================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #f4f7f6, #eaf3f8);
+    color: #333;
+    min-height: 100vh;
+}
+
+
+/* =====================================
+   CABEÇALHO
+===================================== */
+
+header {
+    background: linear-gradient(135deg, #1a252f, #243b53);
+    color: white;
+
+    padding: 20px 40px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+
+/* =====================================
+   BOTÕES DE IDIOMA
+===================================== */
+
+.idioma-selector {
+    display: flex;
+    gap: 8px;
+}
+
+.idioma-selector button {
+    background-color: transparent;
+
+    border: 2px solid white;
+
+    color: white;
+
+    padding: 7px 15px;
+
+    cursor: pointer;
+
+    font-weight: bold;
+
+    border-radius: 20px;
+
+    transition: 0.3s;
+}
+
+.idioma-selector button:hover,
+.idioma-selector button.active {
+    background-color: white;
+    color: #1a252f;
+
+    transform: translateY(-2px);
+}
+
+
+/* =====================================
+   BANNER
+===================================== */
+
+.banner {
+    background: linear-gradient(135deg, #2c3e50, #3498db);
+
+    color: white;
+
+    text-align: center;
+
+    padding: 65px 20px;
+
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+}
+
+.banner h1 {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+}
+
+.banner p {
+    font-size: 1.1rem;
+    opacity: 0.95;
+}
+
+
+/* =====================================
+   CONTAINER
+===================================== */
+
+.container {
+    max-width: 900px;
+
+    margin: 40px auto;
+
+    padding: 0 20px;
+}
+
+
+/* =====================================
+   CARD
+===================================== */
+
+.card {
+    background-color: white;
+
+    padding: 35px;
+
+    border-radius: 16px;
+
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+
+    margin-bottom: 25px;
+
+    border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.card h2 {
+    text-align: center;
+    margin-bottom: 10px;
+
+    color: #1f2d3d;
+}
+
+.card h3 {
+    margin-bottom: 15px;
+
+    color: #2c3e50;
+}
+
+
+/* =====================================
+   SUBTÍTULO
+===================================== */
+
+.subtitulo {
+    text-align: center;
+
+    color: #777;
+
+    margin-bottom: 30px;
+}
+
+
+/* =====================================
+   UPLOAD
+===================================== */
+
+.upload-area {
+    border: 2px dashed #3498db;
+
+    border-radius: 12px;
+
+    padding: 40px 20px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    cursor: pointer;
+
+    transition: 0.3s;
+
+    background-color: #f8fcff;
+}
+
+.upload-area:hover {
+    background-color: #eef8ff;
+
+    border-color: #2980b9;
+
+    transform: translateY(-2px);
+}
+
+.upload-icon {
+    font-size: 45px;
+
+    margin-bottom: 10px;
+}
+
+.upload-area strong {
+    color: #2980b9;
+
+    font-size: 18px;
+}
+
+.upload-area span {
+    color: #777;
+
+    margin-top: 8px;
+
+    font-size: 14px;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+
+/* =====================================
+   ARQUIVO SELECIONADO
+===================================== */
+
+.arquivo-selecionado {
+    background-color: #f4f6f7;
+
+    padding: 15px;
+
+    border-radius: 8px;
+
+    margin-top: 15px;
+
+    text-align: center;
+
+    color: #555;
+
+    border-left: 4px solid #3498db;
+}
+
+
+/* =====================================
+   IDIOMAS
+===================================== */
+
+.idiomas {
+    display: grid;
+
+    grid-template-columns: 1fr 50px 1fr;
+
+    align-items: end;
+
+    gap: 15px;
+
+    margin-top: 25px;
+}
+
+.campo {
+    display: flex;
+
+    flex-direction: column;
+}
+
+.campo label {
+    font-weight: bold;
+
+    margin-bottom: 8px;
+
+    color: #34495e;
+}
+
+select {
+    width: 100%;
+
+    padding: 13px;
+
+    border: 1px solid #ccc;
+
+    border-radius: 8px;
+
+    background-color: white;
+
+    font-size: 15px;
+
+    cursor: pointer;
+
+    outline: none;
+
+    transition: 0.3s;
+}
+
+select:hover {
+    border-color: #3498db;
+}
+
+select:focus {
+    border-color: #3498db;
+
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.12);
+}
+
+.seta {
+    text-align: center;
+
+    font-size: 25px;
+
+    padding-bottom: 8px;
+
+    color: #3498db;
+
+    font-weight: bold;
+}
+
+
+/* =====================================
+   MODO DE TRADUÇÃO
+===================================== */
+
+.modo {
+    margin-top: 25px;
+}
+
+.modo label {
+    display: block;
+
+    font-weight: bold;
+
+    margin-bottom: 8px;
+
+    color: #34495e;
+}
+
+
+/* =====================================
+   BOTÃO TRADUZIR
+===================================== */
+
+.btn-traduzir {
+    width: 100%;
+
+    margin-top: 25px;
+
+    padding: 15px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: linear-gradient(135deg, #3498db, #2980b9);
+
+    color: white;
+
+    font-size: 17px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: 0.3s;
+
+    box-shadow: 0 4px 10px rgba(52, 152, 219, 0.25);
+}
+
+.btn-traduzir:hover {
+    background: linear-gradient(135deg, #2980b9, #2471a3);
+
+    transform: translateY(-2px);
+
+    box-shadow: 0 6px 15px rgba(52, 152, 219, 0.3);
+}
+
+.btn-traduzir:active {
+    transform: translateY(0);
+}
+
+
+/* =====================================
+   MENSAGEM
+===================================== */
+
+.mensagem {
+    text-align: center;
+
+    margin-top: 15px;
+
+    font-weight: bold;
+
+    color: #555;
+}
+
+
+/* =====================================
+   RESULTADO
+===================================== */
+
+.resultado {
+    display: none;
+}
+
+.informacoes {
+    background-color: #f4f8fb;
+
+    padding: 18px;
+
+    border-radius: 9px;
+
+    margin: 20px 0;
+
+    border-left: 4px solid #3498db;
+}
+
+.informacoes p {
+    margin: 9px 0;
+}
+
+
+/* =====================================
+   VISUALIZAÇÃO
+===================================== */
+
+.visualizacao {
+    background-color: #fafafa;
+
+    border: 1px solid #ddd;
+
+    border-radius: 9px;
+
+    padding: 20px;
+
+    min-height: 200px;
+
+    max-height: 450px;
+
+    overflow-y: auto;
+
+    white-space: pre-wrap;
+
+    line-height: 1.6;
+
+    color: #444;
+}
+
+
+/* =====================================
+   BOTÕES INFERIORES
+===================================== */
+
+.botoes {
+    display: flex;
+
+    gap: 15px;
+
+    margin-top: 20px;
+}
+
+.btn-secundario {
+    flex: 1;
+
+    padding: 13px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background-color: #e9ecef;
+
+    color: #34495e;
+
+    cursor: pointer;
+
+    font-weight: bold;
+
+    transition: 0.3s;
+}
+
+.btn-secundario:hover {
+    background-color: #d5d9dc;
+
+    transform: translateY(-2px);
+}
+
+
+/* =====================================
+   RODAPÉ
+===================================== */
+
+footer {
+    text-align: center;
+
+    padding: 25px;
+
+    color: #777;
+
+    font-size: 14px;
+}
+
+
+/* =====================================
+   CELULAR
+===================================== */
+
+@media (max-width: 650px) {
+
+    header {
+        padding: 20px;
+
+        flex-direction: column;
+
+        gap: 15px;
+    }
+
+    .banner {
+        padding: 45px 20px;
+    }
+
+    .banner h1 {
+        font-size: 2rem;
+    }
+
+    .card {
+        padding: 20px;
+    }
+
+    .idiomas {
+        grid-template-columns: 1fr;
+    }
+
+    .seta {
+        transform: rotate(90deg);
+    }
+
+    .botoes {
+        flex-direction: column;
+    }
+
+    .upload-area {
+        padding: 30px 15px;
+    }
 }
