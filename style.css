@@ -10,8 +10,8 @@
 
 body {
     font-family: Arial, Helvetica, sans-serif;
-    background: #eef6ff;
-    color: #1e293b;
+    background: linear-gradient(135deg, #f7fbff, #f9f6ff);
+    color: #334155;
     min-height: 100vh;
 }
 
@@ -23,11 +23,11 @@ body {
 header {
     width: 100%;
     padding: 18px 7%;
-    background: linear-gradient(135deg, #0757c9, #1689f5);
+    background: linear-gradient(135deg, #9bc9e8, #b9afe0);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 3px 12px rgba(0, 80, 180, 0.18);
+    box-shadow: 0 4px 15px rgba(100, 100, 150, 0.12);
 }
 
 .logo {
@@ -43,23 +43,24 @@ header {
 
 .idioma-selector button {
     border: none;
-    background: rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.35);
     color: white;
     padding: 8px 15px;
     border-radius: 20px;
     font-size: 14px;
     font-weight: bold;
     cursor: pointer;
-    transition: 0.2s;
+    transition: 0.3s;
 }
 
 .idioma-selector button:hover {
-    background: rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.6);
+    color: #657b91;
 }
 
 .idioma-selector button.active {
     background: white;
-    color: #0757c9;
+    color: #6d86a3;
 }
 
 
@@ -68,10 +69,10 @@ header {
 ============================== */
 
 .banner {
-    background: linear-gradient(135deg, #0878e8, #20a1ff);
+    background: linear-gradient(135deg, #a9d5ee, #c8bfe8);
     color: white;
     text-align: center;
-    padding: 55px 20px 65px;
+    padding: 60px 20px 75px;
 }
 
 .banner h1 {
@@ -93,7 +94,7 @@ header {
 .container {
     width: 90%;
     max-width: 900px;
-    margin: -30px auto 50px;
+    margin: -35px auto 50px;
     position: relative;
 }
 
@@ -103,21 +104,24 @@ header {
 ============================== */
 
 .card {
-    background: white;
-    border-radius: 18px;
-    padding: 30px;
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 22px;
+    padding: 32px;
     margin-bottom: 25px;
-    box-shadow: 0 8px 25px rgba(30, 90, 150, 0.12);
+
+    box-shadow:
+        0 10px 30px rgba(100, 120, 160, 0.10),
+        0 2px 8px rgba(150, 130, 180, 0.08);
 }
 
 .card h2 {
-    color: #0757c9;
+    color: #657fa0;
     font-size: 23px;
     margin-bottom: 8px;
 }
 
 .subtitulo {
-    color: #64748b;
+    color: #7c8795;
     font-size: 14px;
     margin-bottom: 22px;
 }
@@ -130,21 +134,30 @@ header {
 .upload-area {
     width: 100%;
     min-height: 190px;
-    border: 2px dashed #65aef5;
-    border-radius: 15px;
-    background: #f5faff;
+
+    border: 2px dashed #b5cde0;
+    border-radius: 18px;
+
+    background: linear-gradient(
+        135deg,
+        #f8fcff,
+        #faf8ff
+    );
+
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+
     cursor: pointer;
-    transition: 0.25s;
+    transition: 0.3s;
     text-align: center;
 }
 
 .upload-area:hover {
-    background: #edf7ff;
-    border-color: #0878e8;
+    background: #f4f8ff;
+    border-color: #9db9d3;
+    transform: translateY(-2px);
 }
 
 .upload-icon {
@@ -153,16 +166,20 @@ header {
 }
 
 .upload-area strong {
-    background: #0878e8;
+    background: linear-gradient(135deg, #8fbad8, #aaa0d0);
     color: white;
+
     padding: 11px 24px;
     border-radius: 25px;
+
     font-size: 15px;
     margin-bottom: 10px;
+
+    box-shadow: 0 5px 12px rgba(120, 130, 170, 0.15);
 }
 
 .upload-area span {
-    color: #64748b;
+    color: #7d8794;
     font-size: 13px;
 }
 
@@ -176,11 +193,12 @@ input[type="file"] {
 ============================== */
 
 .arquivo-selecionado {
-    background: #f1f7ff;
-    border-radius: 10px;
+    background: #f3f7fb;
+    border: 1px solid #e1e8ef;
+    border-radius: 12px;
     padding: 13px 16px;
     margin-top: 15px;
-    color: #475569;
+    color: #64748b;
     font-size: 14px;
 }
 
@@ -206,37 +224,57 @@ input[type="file"] {
 .modo label {
     font-size: 14px;
     font-weight: bold;
-    color: #334155;
+    color: #526274;
     margin-bottom: 8px;
 }
 
 select {
     width: 100%;
     padding: 13px 14px;
-    border: 1px solid #cbd5e1;
-    border-radius: 10px;
+
+    border: 1px solid #d5dfe8;
+    border-radius: 12px;
+
     background: white;
-    color: #334155;
+    color: #526274;
+
     font-size: 14px;
     outline: none;
     cursor: pointer;
+
+    transition: 0.3s;
+}
+
+select:hover {
+    border-color: #b7c8d8;
 }
 
 select:focus {
-    border-color: #1689f5;
-    box-shadow: 0 0 0 3px rgba(22, 137, 245, 0.12);
+    border-color: #9db9d3;
+
+    box-shadow:
+        0 0 0 3px rgba(170, 160, 210, 0.12);
 }
 
 .seta {
-    width: 42px;
-    height: 42px;
-    background: #e7f3ff;
-    color: #0878e8;
+    width: 44px;
+    height: 44px;
+
+    background: linear-gradient(
+        135deg,
+        #e5f3fb,
+        #f0eafd
+    );
+
+    color: #7189a6;
+
     border-radius: 50%;
+
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 22px;
+
+    font-size: 21px;
     font-weight: bold;
     margin-bottom: 1px;
 }
@@ -262,21 +300,35 @@ select:focus {
 .btn-traduzir {
     width: 100%;
     border: none;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #0757c9, #1689f5);
+    border-radius: 14px;
+
+    background: linear-gradient(
+        135deg,
+        #8fbad8,
+        #aaa0d0
+    );
+
     color: white;
+
     padding: 16px;
     margin-top: 28px;
+
     font-size: 16px;
     font-weight: bold;
+
     cursor: pointer;
-    box-shadow: 0 5px 15px rgba(7, 87, 201, 0.22);
-    transition: 0.2s;
+
+    box-shadow:
+        0 7px 18px rgba(120, 130, 170, 0.18);
+
+    transition: 0.3s;
 }
 
 .btn-traduzir:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 18px rgba(7, 87, 201, 0.3);
+
+    box-shadow:
+        0 10px 22px rgba(120, 130, 170, 0.25);
 }
 
 .btn-traduzir:active {
@@ -292,7 +344,7 @@ select:focus {
     margin-top: 15px;
     text-align: center;
     font-size: 14px;
-    color: #475569;
+    color: #718096;
 }
 
 
@@ -305,12 +357,19 @@ select:focus {
 }
 
 .resultado h2 {
-    color: #16a34a;
+    color: #6d8da5;
 }
 
 .informacoes {
-    background: #f5faff;
-    border-radius: 12px;
+    background: linear-gradient(
+        135deg,
+        #f3f8fc,
+        #f7f4fc
+    );
+
+    border: 1px solid #e5e8f0;
+
+    border-radius: 14px;
     padding: 18px;
     margin: 20px 0 25px;
 }
@@ -318,25 +377,29 @@ select:focus {
 .informacoes p {
     margin: 8px 0;
     font-size: 14px;
-    color: #475569;
+    color: #64748b;
 }
 
 .informacoes strong {
-    color: #1e293b;
+    color: #475569;
 }
 
 .card h3 {
     font-size: 18px;
-    color: #0757c9;
+    color: #657fa0;
     margin-bottom: 12px;
 }
 
 .visualizacao {
     min-height: 150px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
+
+    background: #fafbfc;
+
+    border: 1px solid #e3e8ee;
+    border-radius: 14px;
+
     padding: 20px;
+
     color: #64748b;
     line-height: 1.6;
 }
@@ -354,18 +417,26 @@ select:focus {
 
 .btn-secundario {
     flex: 1;
+
     padding: 13px;
-    border-radius: 10px;
-    border: 1px solid #1689f5;
+
+    border-radius: 12px;
+
+    border: 1px solid #b6c9dc;
+
     background: white;
-    color: #0878e8;
+
+    color: #6b86a2;
+
     font-weight: bold;
     cursor: pointer;
-    transition: 0.2s;
+
+    transition: 0.3s;
 }
 
 .btn-secundario:hover {
-    background: #edf7ff;
+    background: #f4f7fb;
+    transform: translateY(-1px);
 }
 
 
@@ -376,7 +447,8 @@ select:focus {
 footer {
     text-align: center;
     padding: 25px 15px;
-    color: #64748b;
+
+    color: #8993a0;
     font-size: 13px;
 }
 
@@ -434,4 +506,17 @@ footer {
     .botoes {
         flex-direction: column;
     }
+}
+/* ==============================
+   BANDEIRINHAS NOS CAMPOS DE IDIOMA
+============================== */
+
+.idiomas .campo:first-child label::before {
+    content: "🇧🇷";
+    margin-right: 6px;
+}
+
+.idiomas .campo:last-child label::before {
+    content: "🇪🇸";
+    margin-right: 6px;
 }
