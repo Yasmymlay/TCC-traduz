@@ -9,29 +9,21 @@
 
     <link rel="stylesheet" href="style.css">
 
-    <!-- PDF.js - leitura de PDF -->
-    <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs"
-        type="module">
-    </script>
-
-    <!-- Mammoth - leitura de Word -->
+    <!-- Bibliotecas utilizadas pelo projeto -->
     <script
         src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js">
     </script>
 
-    <!-- JSZip - leitura do PowerPoint -->
     <script
         src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js">
     </script>
-
 </head>
 
 <body>
 
-    <!-- ==============================
+    <!-- =====================================
          CABEÇALHO
-    =============================== -->
+    ====================================== -->
 
     <header>
 
@@ -65,46 +57,74 @@
     </header>
 
 
-    <!-- ==============================
-         BANNER
-    =============================== -->
+    <!-- =====================================
+         BANNER PRINCIPAL
+    ====================================== -->
 
     <section class="banner">
 
-        <h1>
-            📚 Tradutor de Aulas
-        </h1>
+        <div class="banner-conteudo">
 
-        <p>
-            Traduza seus materiais de estudo de forma simples e rápida.
-        </p>
+            <div class="banner-icone">
+            </div>
+
+            <div>
+
+                <h1>
+                    Tradutor de Aulas
+                </h1>
+
+                <p>
+                    Traduza seus materiais de estudo de forma
+                    simples e rápida.
+                </p>
+
+            </div>
+
+        </div>
 
     </section>
 
 
-    <!-- ==============================
+    <!-- =====================================
          CONTEÚDO PRINCIPAL
-    =============================== -->
+    ====================================== -->
 
     <main class="container">
 
+
+        <!-- =====================================
+             CARD DE CARREGAMENTO
+        ====================================== -->
+
         <section class="card">
 
-            <h2>📄 Envie seu material</h2>
+            <div class="titulo-secao">
 
-            <p class="subtitulo">
-                PDF • Word • PowerPoint
-            </p>
+                <div class="icone-titulo">
+                </div>
+
+                <div>
+                    <h2>
+                        Carregar arquivo
+                    </h2>
+
+                    <p>
+                        Envie seu material de estudo para começar a tradução.
+                    </p>
+                </div>
+
+            </div>
 
 
-            <!-- Área para selecionar arquivo -->
+            <!-- Área de upload -->
 
             <label
                 for="arquivo"
                 class="upload-area">
 
                 <div class="upload-icon">
-                    📁
+                    ⬆️
                 </div>
 
                 <strong>
@@ -115,7 +135,14 @@
                     PDF, Word ou PowerPoint
                 </span>
 
+                <small>
+                    (máx. 10MB)
+                </small>
+
             </label>
+
+
+            <!-- Input real do arquivo -->
 
             <input
                 type="file"
@@ -129,97 +156,175 @@
                 id="arquivoSelecionado"
                 class="arquivo-selecionado">
 
-                Nenhum arquivo selecionado.
+                <span class="arquivo-icone">
+                    📄
+                </span>
+
+                <span>
+                    Nenhum arquivo selecionado
+                </span>
+
+                <span class="arquivo-fechar">
+                    ×
+                </span>
 
             </div>
 
 
-            <!-- ==============================
+            <!-- =====================================
                  IDIOMAS
-            =============================== -->
+            ====================================== -->
 
-            <div class="idiomas">
+            <div class="subsecao">
 
-                <div class="campo">
+                <div class="titulo-subsecao">
 
-                    <label for="idiomaOrigem">
-                        Idioma original
-                    </label>
+                    <span>
+                    </span>
 
-                    <select id="idiomaOrigem">
-
-                        <option value="pt">
-                            🇧🇷 Português
-                        </option>
-
-                        <option value="es">
-                            🇪🇸 Espanhol
-                        </option>
-
-                        <option value="en">
-                            🇺🇸 Inglês
-                        </option>
-
-                        <option value="fr">
-                            🇫🇷 Francês
-                        </option>
-
-                        <option value="it">
-                            🇮🇹 Italiano
-                        </option>
-
-                        <option value="de">
-                            🇩🇪 Alemão
-                        </option>
-
-                        <option value="he">
-                            🇮🇱 Hebraico
-                        </option>
-
-                    </select>
+                    <h2>
+                        Idiomas 🌐
+                    </h2>
 
                 </div>
 
 
-                <div class="seta">
-                    →
+                <div class="idiomas">
+
+
+                    <!-- Idioma original -->
+
+                    <div class="campo">
+
+                        <label for="idiomaOrigem">
+                            Idioma original
+                        </label>
+
+                        <select id="idiomaOrigem">
+
+                            <option value="pt">
+                                🇧🇷 Português
+                            </option>
+
+                            <option value="es">
+                                🇪🇸 Espanhol
+                            </option>
+
+                            <option value="en">
+                                🇺🇸 Inglês
+                            </option>
+
+                            <option value="fr">
+                                🇫🇷 Francês
+                            </option>
+
+                            <option value="it">
+                                🇮🇹 Italiano
+                            </option>
+
+                            <option value="de">
+                                🇩🇪 Alemão
+                            </option>
+
+                            <option value="he">
+                                🇮🇱 Hebraico
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Seta -->
+
+                    <div class="seta">
+                        ⇄
+                    </div>
+
+
+                    <!-- Idioma destino -->
+
+                    <div class="campo">
+
+                        <label for="idiomaDestino">
+                            Traduzir para
+                        </label>
+
+                        <select id="idiomaDestino">
+
+                            <option value="en">
+                                🇺🇸 Inglês
+                            </option>
+
+                            <option value="es">
+                                🇪🇸 Espanhol
+                            </option>
+
+                            <option value="fr">
+                                🇫🇷 Francês
+                            </option>
+
+                            <option value="it">
+                                🇮🇹 Italiano
+                            </option>
+
+                            <option value="de">
+                                🇩🇪 Alemão
+                            </option>
+
+                            <option value="he">
+                                🇮🇱 Hebraico
+                            </option>
+
+                            <option value="pt">
+                                🇧🇷 Português
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =====================================
+                 MODO DE TRADUÇÃO
+            ====================================== -->
+
+            <div class="subsecao">
+
+                <div class="titulo-subsecao">
+
+                    <span>
+                    </span>
+
+                    <h2>
+                        Modo de tradução
+                    </h2>
+
                 </div>
 
 
-                <div class="campo">
+                <div class="modo">
 
-                    <label for="idiomaDestino">
-                        Traduzir para
+                    <label for="tipoTraducao">
+                        Tipo de tradução
                     </label>
 
-                    <select id="idiomaDestino">
+                    <select id="tipoTraducao">
 
-                        <option value="en">
-                            🇺🇸 Inglês
+                        <option value="academica">
+                            🎓 Tradução completa
                         </option>
 
-                        <option value="es">
-                            🇪🇸 Espanhol
+                        <option value="paginas">
+                            📄 Tradução por páginas
                         </option>
 
-                        <option value="fr">
-                            🇫🇷 Francês
-                        </option>
-
-                        <option value="it">
-                            🇮🇹 Italiano
-                        </option>
-
-                        <option value="de">
-                            🇩🇪 Alemão
-                        </option>
-
-                        <option value="he">
-                            🇮🇱 Hebraico
-                        </option>
-
-                        <option value="pt">
-                            🇧🇷 Português
+                        <option value="capitulos">
+                            📚 Tradução por capítulos
                         </option>
 
                     </select>
@@ -229,92 +334,105 @@
             </div>
 
 
-            <!-- ==============================
-                 TIPO DE TRADUÇÃO
-            =============================== -->
-
-            <div class="modo">
-
-                <label for="tipoTraducao">
-                    🎓 Tipo de tradução
-                </label>
-
-                <select id="tipoTraducao">
-
-                    <option value="academica">
-                        🎓 Tradução acadêmica/pedagógica
-                    </option>
-
-                    <option value="comum">
-                        🌎 Tradução comum
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <!-- ==============================
-                 BOTÃO
-            =============================== -->
+            <!-- =====================================
+                 BOTÃO TRADUZIR
+            ====================================== -->
 
             <button
                 id="btnTraduzir"
                 class="btn-traduzir">
 
-                🔄 Preparar tradução
+                <span>
+                    ⟳
+                </span>
+
+                Traduzir agora
 
             </button>
 
 
-            <!-- Mensagem -->
+            <!-- Mensagem do sistema -->
 
             <div
                 id="mensagem"
                 class="mensagem">
+
+                <span>
+                    ●
+                </span>
+
+                Selecione um arquivo e configure os idiomas
+                para começar.
+
             </div>
 
         </section>
 
 
-        <!-- ==============================
-             RESULTADO
-        =============================== -->
+        <!-- =====================================
+             RESULTADO DA TRADUÇÃO
+        ====================================== -->
 
         <section
             id="resultado"
             class="card resultado">
 
-            <h2>
-                ✅ Material carregado
-            </h2>
 
+            <div class="titulo-secao">
+
+                <div class="icone-titulo">
+                    📄
+                </div>
+
+                <div>
+
+                    <h2>
+                        Resultado da tradução
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <!-- Informações -->
 
             <div class="informacoes">
 
                 <p>
-                    <strong>Arquivo:</strong>
+                    <strong>
+                        Arquivo:
+                    </strong>
 
                     <span id="nomeResultado">
                     </span>
                 </p>
 
+
                 <p>
-                    <strong>Formato:</strong>
+                    <strong>
+                        Formato:
+                    </strong>
 
                     <span id="formatoResultado">
                     </span>
                 </p>
 
+
                 <p>
-                    <strong>Idioma destino:</strong>
+                    <strong>
+                        Idioma destino:
+                    </strong>
 
                     <span id="idiomaResultado">
                     </span>
                 </p>
 
+
                 <p>
-                    <strong>Modo:</strong>
+                    <strong>
+                        Modo:
+                    </strong>
 
                     <span id="modoResultado">
                     </span>
@@ -322,6 +440,8 @@
 
             </div>
 
+
+            <!-- Visualização -->
 
             <h3>
                 👁 Visualização do conteúdo
@@ -337,13 +457,15 @@
             </div>
 
 
+            <!-- Botões -->
+
             <div class="botoes">
 
                 <button
                     id="btnBaixar"
                     class="btn-secundario">
 
-                    ⬇ Baixar conteúdo
+                    ⬇️ Baixar conteúdo
 
                 </button>
 
@@ -363,23 +485,29 @@
     </main>
 
 
-    <!-- ==============================
+    <!-- =====================================
          RODAPÉ
-    =============================== -->
+    ====================================== -->
 
     <footer>
 
         <p>
-            Tradutor de Aulas • Projeto de TCC
+            Tradutor de Aulas
+            <span>•</span>
+            Aprendizado sem fronteiras
+            <span>•</span>
+            2025
         </p>
 
     </footer>
 
+
+    <!-- =====================================
+         JAVASCRIPT DO PROJETO
+    ====================================== -->
 
     <script src="script.js"></script>
 
 </body>
 
 </html>
-
-<!--yasmin + tutu-->
