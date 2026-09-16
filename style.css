@@ -493,7 +493,7 @@ input[type="file"] {
 
     font-weight: bold;
 
-    color: #52719a;
+    color: #347a3f;
 
     margin-bottom: 8px;
 }
@@ -509,7 +509,7 @@ select {
 
     background: white;
 
-    color: #536f96;
+    color: #04512c;
 
     font-size: 13px;
 
@@ -525,7 +525,7 @@ select:hover {
 }
 
 select:focus {
-    border-color: #8db8df;
+    border-color: #25b270;
 
     box-shadow:
         0 0 0 3px rgba(120,180,225,0.12);
@@ -549,7 +549,7 @@ select:focus {
             #eeeaff
         );
 
-    color: #6190c4;
+    color: #068764;
 
     display: flex;
 
@@ -587,7 +587,7 @@ select:focus {
 .modo small {
     display: block;
 
-    color: #91a6be;
+    color: #7ae776;
 
     font-size: 11px;
 
@@ -615,8 +615,8 @@ select:focus {
     background:
         linear-gradient(
             135deg,
-            #73bfe9,
-            #9e91df
+            #169448,
+            #9fd19e
         );
 
     color: white;
@@ -654,7 +654,7 @@ select:focus {
 
     text-align: center;
 
-    color: #8da3bd;
+    color: #010305ef;
 
     font-size: 12px;
 }
