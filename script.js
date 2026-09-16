@@ -47,6 +47,8 @@ let arquivoAtual = null;
 
 let textoExtraido = "";
 
+let textoTraduzido = "";
+
 
 // =====================================
 // IDIOMAS DO CABEÇALHO
@@ -84,12 +86,16 @@ botoesIdioma.forEach(botao => {
 // =====================================
 // SELEÇÃO DO ARQUIVO
 // =====================================
+
 arquivoInput.addEventListener(
     "change",
     function () {
 
         arquivoAtual =
             this.files[0];
+
+        textoExtraido = "";
+        textoTraduzido = "";
 
 
         if (!arquivoAtual) {
@@ -130,15 +136,35 @@ arquivoInput.addEventListener(
         }
 
 
+        // Verificação do tamanho máximo de 10 MB
+
+        if (
+            arquivoAtual.size >
+            10 * 1024 * 1024
+        ) {
+
+            arquivoSelecionado.textContent =
+                "❌ O arquivo ultrapassa o limite de 10 MB.";
+
+            arquivoAtual = null;
+
+            return;
+        }
+
+
         arquivoSelecionado.innerHTML =
             `📄 <strong>${arquivoAtual.name}</strong>`;
+
+        mostrarMensagem(
+            "✅ Arquivo selecionado. Clique em Traduzir agora."
+        );
 
     }
 );
 
 
 // =====================================
-// BOTÃO PREPARAR TRADUÇÃO
+// BOTÃO TRADUZIR
 // =====================================
 
 btnTraduzir.addEventListener(
@@ -156,12 +182,10 @@ btnTraduzir.addEventListener(
         }
 
 
-        mostrarMensagem(
-            "⏳ Lendo o arquivo..."
-        );
-
-
         btnTraduzir.disabled = true;
+
+        btnTraduzir.textContent =
+            "⏳ Lendo arquivo...";
 
 
         try {
@@ -173,7 +197,9 @@ btnTraduzir.addEventListener(
                     .toLowerCase();
 
 
+            // =================================
             // PDF
+            // =================================
 
             if (extensao === "pdf") {
 
@@ -181,10 +207,13 @@ btnTraduzir.addEventListener(
                     await lerPDF(
                         arquivoAtual
                     );
+
             }
 
 
+            // =================================
             // WORD
+            // =================================
 
             else if (extensao === "docx") {
 
@@ -192,10 +221,13 @@ btnTraduzir.addEventListener(
                     await lerWord(
                         arquivoAtual
                     );
+
             }
 
 
+            // =================================
             // POWERPOINT
+            // =================================
 
             else if (extensao === "pptx") {
 
@@ -203,10 +235,14 @@ btnTraduzir.addEventListener(
                     await lerPowerPoint(
                         arquivoAtual
                     );
+
             }
 
 
-            if (!textoExtraido) {
+            if (
+                !textoExtraido ||
+                !textoExtraido.trim()
+            ) {
 
                 throw new Error(
                     "Não foi possível encontrar texto no arquivo."
@@ -215,34 +251,234 @@ btnTraduzir.addEventListener(
             }
 
 
+            // =================================
+            // IDIOMAS
+            // =================================
+
+            const origem =
+                document.getElementById(
+                    "idiomaOrigem"
+                ).value;
+
+
+            const destino =
+                document.getElementById(
+                    "idiomaDestino"
+                ).value;
+
+
+            // =================================
+            // TRADUÇÃO
+            // =================================
+
+            btnTraduzir.textContent =
+                "🌎 Traduzindo...";
+
+
+            mostrarMensagem(
+                "🌎 Enviando conteúdo para tradução..."
+            );
+
+
+            textoTraduzido =
+                await traduzirTexto(
+                    textoExtraido,
+                    origem,
+                    destino
+                );
+
+
+            // =================================
+            // MOSTRAR RESULTADO
+            // =================================
+
             mostrarResultado();
 
 
             mostrarMensagem(
-                "✅ Arquivo lido com sucesso!"
+                "✅ Tradução concluída com sucesso!"
             );
 
         }
 
+
         catch (erro) {
 
-            console.error(erro);
+            console.error(
+                "Erro:",
+                erro
+            );
+
 
             mostrarMensagem(
-                "❌ Não foi possível ler o arquivo.",
+                "❌ " + erro.message,
                 true
             );
 
         }
 
+
         finally {
 
             btnTraduzir.disabled = false;
+
+            btnTraduzir.innerHTML =
+                "<span>⟳</span> Traduzir agora";
 
         }
 
     }
 );
+
+
+// =====================================
+// TRADUZIR TEXTO COM LIBRETRANSLATE
+// =====================================
+
+async function traduzirTexto(
+    texto,
+    origem,
+    destino
+) {
+
+    // Se os idiomas forem iguais,
+    // não precisamos chamar a API.
+
+    if (origem === destino) {
+
+        return texto;
+
+    }
+
+
+    /*
+        O LibreTranslate funciona melhor
+        quando enviamos o texto usando
+        application/x-www-form-urlencoded.
+
+        Isso também evita o problema de JSON
+        que tivemos no teste do PowerShell.
+    */
+
+
+    const tamanhoMaximo = 4000;
+
+
+    const partes = [];
+
+
+    for (
+        let i = 0;
+        i < texto.length;
+        i += tamanhoMaximo
+    ) {
+
+        partes.push(
+            texto.substring(
+                i,
+                i + tamanhoMaximo
+            )
+        );
+
+    }
+
+
+    const traducoes = [];
+
+
+    for (
+        let i = 0;
+        i < partes.length;
+        i++
+    ) {
+
+        mostrarMensagem(
+            `🌎 Traduzindo parte ${i + 1} de ${partes.length}...`
+        );
+
+
+        const dados =
+            new URLSearchParams();
+
+
+        dados.append(
+            "q",
+            partes[i]
+        );
+
+
+        dados.append(
+            "source",
+            origem
+        );
+
+
+        dados.append(
+            "target",
+            destino
+        );
+
+
+        dados.append(
+            "format",
+            "text"
+        );
+
+
+        const resposta =
+            await fetch(
+                "http://127.0.0.1:5000/translate",
+                {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/x-www-form-urlencoded"
+                    },
+
+                    body: dados.toString()
+
+                }
+            );
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                "O LibreTranslate não conseguiu realizar a tradução."
+            );
+
+        }
+
+
+        const dadosResposta =
+            await resposta.json();
+
+
+        if (
+            !dadosResposta.translatedText
+        ) {
+
+            throw new Error(
+                "A API não retornou o texto traduzido."
+            );
+
+        }
+
+
+        traducoes.push(
+            dadosResposta.translatedText
+        );
+
+    }
+
+
+    return traducoes.join(
+        "\n\n"
+    );
+
+}
 
 
 // =====================================
@@ -296,6 +532,7 @@ async function lerPDF(arquivo) {
 
         texto +=
             `\n\n--- Página ${pagina} ---\n\n`;
+
 
         texto += linhas;
 
@@ -364,10 +601,12 @@ async function lerPowerPoint(arquivo) {
                         a.match(/slide(\d+)/)[1]
                     );
 
+
                 const numeroB =
                     parseInt(
                         b.match(/slide(\d+)/)[1]
                     );
+
 
                 return numeroA - numeroB;
 
@@ -425,6 +664,7 @@ async function lerPowerPoint(arquivo) {
 
         texto +=
             `\n\n--- Slide ${i + 1} ---\n\n`;
+
 
         texto +=
             textoSlide.trim();
@@ -486,8 +726,12 @@ function mostrarResultado() {
         ].text;
 
 
+    // IMPORTANTE:
+    // Agora mostramos a tradução,
+    // e não mais o texto original.
+
     visualizacao.textContent =
-        textoExtraido;
+        textoTraduzido;
 
 
     resultado.scrollIntoView({
@@ -535,17 +779,25 @@ btnNovo.addEventListener(
         textoExtraido =
             "";
 
+        textoTraduzido =
+            "";
+
+
         arquivoSelecionado.textContent =
-            "Nenhum arquivo selecionado.";
+            "Nenhum arquivo selecionado";
+
 
         visualizacao.textContent =
             "O conteúdo do arquivo aparecerá aqui.";
 
+
         resultado.style.display =
             "none";
 
+
         mensagem.textContent =
             "";
+
 
         window.scrollTo({
             top: 0,
@@ -557,27 +809,28 @@ btnNovo.addEventListener(
 
 
 // =====================================
-// BAIXAR TEXTO
+// BAIXAR TRADUÇÃO
 // =====================================
 
 btnBaixar.addEventListener(
     "click",
     function () {
 
-        if (!textoExtraido) {
+        if (!textoTraduzido) {
 
             mostrarMensagem(
-                "⚠️ Não existe conteúdo para baixar.",
+                "⚠️ Não existe tradução para baixar.",
                 true
             );
 
             return;
+
         }
 
 
         const blob =
             new Blob(
-                [textoExtraido],
+                [textoTraduzido],
                 {
                     type:
                         "text/plain;charset=utf-8"
