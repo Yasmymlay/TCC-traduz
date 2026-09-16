@@ -1,622 +1,675 @@
-// =====================================
-// ELEMENTOS DO SITE
-// =====================================
+/* =====================================================
+   TRADUÇÃO DO SITE
+   PT = Português
+   ES = Espanhol
+   EN = Inglês
 
-const arquivoInput =
-    document.getElementById("arquivo");
-
-const arquivoSelecionado =
-    document.getElementById("arquivoSelecionado");
-
-const btnTraduzir =
-    document.getElementById("btnTraduzir");
-
-const resultado =
-    document.getElementById("resultado");
-
-const visualizacao =
-    document.getElementById("visualizacao");
-
-const mensagem =
-    document.getElementById("mensagem");
-
-const nomeResultado =
-    document.getElementById("nomeResultado");
-
-const formatoResultado =
-    document.getElementById("formatoResultado");
-
-const idiomaResultado =
-    document.getElementById("idiomaResultado");
-
-const modoResultado =
-    document.getElementById("modoResultado");
-
-const btnBaixar =
-    document.getElementById("btnBaixar");
-
-const btnNovo =
-    document.getElementById("btnNovo");
+   Não precisa alterar o HTML.
+===================================================== */
 
 
-// =====================================
-// VARIÁVEIS
-// =====================================
+/* =====================================================
+   TEXTOS DOS IDIOMAS
+===================================================== */
 
-let arquivoAtual = null;
+const textos = {
 
-let textoExtraido = "";
+    pt: {
+
+        logo: "🎓 Tradutor de Aulas",
+
+        bannerTitulo: "📚 Tradutor de Aulas",
+
+        bannerDescricao:
+            "Traduza seus materiais de estudo de forma simples e rápida.",
+
+        enviarMaterial:
+            "📄 Envie seu material",
+
+        formatos:
+            "PDF • Word • PowerPoint",
+
+        escolherArquivo:
+            "Escolher arquivo",
+
+        tiposArquivo:
+            "PDF, Word ou PowerPoint",
+
+        nenhumArquivo:
+            "Nenhum arquivo selecionado.",
+
+        idiomaOrigem:
+            "🇧🇷 Idioma original",
+
+        idiomaDestino:
+            "🇪🇸 Traduzir para",
+
+        tipoTraducao:
+            "🎓 Tipo de tradução",
+
+        traducaoAcademica:
+            "🎓 Tradução acadêmica/pedagógica",
+
+        traducaoComum:
+            "🌎 Tradução comum",
+
+        preparar:
+            "🔄 Preparar tradução",
+
+        materialCarregado:
+            "✅ Material carregado",
+
+        arquivo:
+            "Arquivo:",
+
+        formato:
+            "Formato:",
+
+        idiomaResultado:
+            "Idioma destino:",
+
+        modo:
+            "Modo:",
+
+        visualizacao:
+            "👁 Visualização do conteúdo",
+
+        conteudo:
+            "O conteúdo do arquivo aparecerá aqui.",
+
+        baixar:
+            "⬇ Baixar conteúdo",
+
+        novoArquivo:
+            "📤 Novo arquivo",
+
+        rodape:
+            "Tradutor de Aulas • Projeto de TCC"
+
+    },
 
 
-// =====================================
-// IDIOMAS DO CABEÇALHO
-// =====================================
+    es: {
 
-const botoesIdioma =
-    document.querySelectorAll(
-        ".idioma-selector button"
+        logo: "🎓 Traductor de Clases",
+
+        bannerTitulo:
+            "📚 Traductor de Clases",
+
+        bannerDescricao:
+            "Traduce tus materiales de estudio de forma sencilla y rápida.",
+
+        enviarMaterial:
+            "📄 Envía tu material",
+
+        formatos:
+            "PDF • Word • PowerPoint",
+
+        escolherArquivo:
+            "Elegir archivo",
+
+        tiposArquivo:
+            "PDF, Word o PowerPoint",
+
+        nenhumArquivo:
+            "Ningún archivo seleccionado.",
+
+        idiomaOrigem:
+            "🇧🇷 Idioma original",
+
+        idiomaDestino:
+            "🇪🇸 Traducir a",
+
+        tipoTraducao:
+            "🎓 Tipo de traducción",
+
+        traducaoAcademica:
+            "🎓 Traducción académica/pedagógica",
+
+        traducaoComum:
+            "🌎 Traducción común",
+
+        preparar:
+            "🔄 Preparar traducción",
+
+        materialCarregado:
+            "✅ Material cargado",
+
+        arquivo:
+            "Archivo:",
+
+        formato:
+            "Formato:",
+
+        idiomaResultado:
+            "Idioma de destino:",
+
+        modo:
+            "Modo:",
+
+        visualizacao:
+            "👁 Visualización del contenido",
+
+        conteudo:
+            "El contenido del archivo aparecerá aquí.",
+
+        baixar:
+            "⬇ Descargar contenido",
+
+        novoArquivo:
+            "📤 Nuevo archivo",
+
+        rodape:
+            "Traductor de Clases • Proyecto de TCC"
+
+    },
+
+
+    en: {
+
+        logo:
+            "🎓 Lesson Translator",
+
+        bannerTitulo:
+            "📚 Lesson Translator",
+
+        bannerDescricao:
+            "Translate your study materials simply and quickly.",
+
+        enviarMaterial:
+            "📄 Upload your material",
+
+        formatos:
+            "PDF • Word • PowerPoint",
+
+        escolherArquivo:
+            "Choose file",
+
+        tiposArquivo:
+            "PDF, Word or PowerPoint",
+
+        nenhumArquivo:
+            "No file selected.",
+
+        idiomaOrigem:
+            "🇧🇷 Original language",
+
+        idiomaDestino:
+            "🇪🇸 Translate to",
+
+        tipoTraducao:
+            "🎓 Translation type",
+
+        traducaoAcademica:
+            "🎓 Academic/pedagogical translation",
+
+        traducaoComum:
+            "🌎 Common translation",
+
+        preparar:
+            "🔄 Prepare translation",
+
+        materialCarregado:
+            "✅ Material loaded",
+
+        arquivo:
+            "File:",
+
+        formato:
+            "Format:",
+
+        idiomaResultado:
+            "Target language:",
+
+        modo:
+            "Mode:",
+
+        visualizacao:
+            "👁 Content preview",
+
+        conteudo:
+            "The file content will appear here.",
+
+        baixar:
+            "⬇ Download content",
+
+        novoArquivo:
+            "📤 New file",
+
+        rodape:
+            "Lesson Translator • TCC Project"
+
+    }
+
+};
+
+
+/* =====================================================
+   FUNÇÃO PARA TROCAR O IDIOMA
+===================================================== */
+
+function mudarIdioma(idioma) {
+
+    const t = textos[idioma];
+
+    if (!t) {
+        return;
+    }
+
+
+    /* ==============================
+       LOGO
+    ============================== */
+
+    const logo = document.querySelector(".logo");
+
+    if (logo) {
+        logo.textContent = t.logo;
+    }
+
+
+    /* ==============================
+       BANNER
+    ============================== */
+
+    const bannerTitulo =
+        document.querySelector(".banner h1");
+
+    if (bannerTitulo) {
+        bannerTitulo.textContent =
+            t.bannerTitulo;
+    }
+
+
+    const bannerDescricao =
+        document.querySelector(".banner p");
+
+    if (bannerDescricao) {
+        bannerDescricao.textContent =
+            t.bannerDescricao;
+    }
+
+
+    /* ==============================
+       CARD
+    ============================== */
+
+    const cardTitulo =
+        document.querySelector(".card h2");
+
+    if (cardTitulo) {
+        cardTitulo.textContent =
+            t.enviarMaterial;
+    }
+
+
+    const subtitulo =
+        document.querySelector(".subtitulo");
+
+    if (subtitulo) {
+        subtitulo.textContent =
+            t.formatos;
+    }
+
+
+    /* ==============================
+       UPLOAD
+    ============================== */
+
+    const uploadStrong =
+        document.querySelector(".upload-area strong");
+
+    if (uploadStrong) {
+        uploadStrong.textContent =
+            t.escolherArquivo;
+    }
+
+
+    const uploadSpan =
+        document.querySelector(".upload-area span");
+
+    if (uploadSpan) {
+        uploadSpan.textContent =
+            t.tiposArquivo;
+    }
+
+
+    /* ==============================
+       ARQUIVO SELECIONADO
+    ============================== */
+
+    const arquivoSelecionado =
+        document.getElementById(
+            "arquivoSelecionado"
+        );
+
+    /*
+       Só altera se ainda não houver
+       um arquivo escolhido.
+    */
+
+    const inputArquivo =
+        document.getElementById("arquivo");
+
+    if (
+        arquivoSelecionado &&
+        inputArquivo &&
+        inputArquivo.files.length === 0
+    ) {
+
+        arquivoSelecionado.textContent =
+            t.nenhumArquivo;
+    }
+
+
+    /* ==============================
+       IDIOMA DE ORIGEM
+    ============================== */
+
+    const labelOrigem =
+        document.querySelector(
+            'label[for="idiomaOrigem"]'
+        );
+
+    if (labelOrigem) {
+        labelOrigem.textContent =
+            t.idiomaOrigem;
+    }
+
+
+    /* ==============================
+       IDIOMA DE DESTINO
+    ============================== */
+
+    const labelDestino =
+        document.querySelector(
+            'label[for="idiomaDestino"]'
+        );
+
+    if (labelDestino) {
+        labelDestino.textContent =
+            t.idiomaDestino;
+    }
+
+
+    /* ==============================
+       TIPO DE TRADUÇÃO
+    ============================== */
+
+    const labelTipo =
+        document.querySelector(
+            'label[for="tipoTraducao"]'
+        );
+
+    if (labelTipo) {
+        labelTipo.textContent =
+            t.tipoTraducao;
+    }
+
+
+    /* ==============================
+       OPÇÕES DO TIPO DE TRADUÇÃO
+    ============================== */
+
+    const selectTipo =
+        document.getElementById("tipoTraducao");
+
+    if (selectTipo) {
+
+        const opcaoAcademica =
+            selectTipo.querySelector(
+                'option[value="academica"]'
+            );
+
+        const opcaoComum =
+            selectTipo.querySelector(
+                'option[value="comum"]'
+            );
+
+        if (opcaoAcademica) {
+            opcaoAcademica.textContent =
+                t.traducaoAcademica;
+        }
+
+        if (opcaoComum) {
+            opcaoComum.textContent =
+                t.traducaoComum;
+        }
+    }
+
+
+    /* ==============================
+       BOTÃO PRINCIPAL
+    ============================== */
+
+    const btnTraduzir =
+        document.getElementById("btnTraduzir");
+
+    if (btnTraduzir) {
+        btnTraduzir.textContent =
+            t.preparar;
+    }
+
+
+    /* ==============================
+       RESULTADO
+    ============================== */
+
+    const resultadoTitulo =
+        document.querySelector(
+            ".resultado h2"
+        );
+
+    if (resultadoTitulo) {
+        resultadoTitulo.textContent =
+            t.materialCarregado;
+    }
+
+
+    /* ==============================
+       INFORMAÇÕES
+    ============================== */
+
+    const informacoes =
+        document.querySelectorAll(
+            ".informacoes p"
+        );
+
+    if (informacoes.length >= 4) {
+
+        informacoes[0].querySelector("strong").textContent =
+            t.arquivo;
+
+        informacoes[1].querySelector("strong").textContent =
+            t.formato;
+
+        informacoes[2].querySelector("strong").textContent =
+            t.idiomaResultado;
+
+        informacoes[3].querySelector("strong").textContent =
+            t.modo;
+    }
+
+
+    /* ==============================
+       VISUALIZAÇÃO
+    ============================== */
+
+    const visualizacaoTitulo =
+        document.querySelector(
+            ".card h3"
+        );
+
+    if (visualizacaoTitulo) {
+        visualizacaoTitulo.textContent =
+            t.visualizacao;
+    }
+
+
+    const visualizacao =
+        document.getElementById(
+            "visualizacao"
+        );
+
+    if (visualizacao) {
+        visualizacao.textContent =
+            t.conteudo;
+    }
+
+
+    /* ==============================
+       BOTÕES DO RESULTADO
+    ============================== */
+
+    const btnBaixar =
+        document.getElementById(
+            "btnBaixar"
+        );
+
+    if (btnBaixar) {
+        btnBaixar.textContent =
+            t.baixar;
+    }
+
+
+    const btnNovo =
+        document.getElementById(
+            "btnNovo"
+        );
+
+    if (btnNovo) {
+        btnNovo.textContent =
+            t.novoArquivo;
+    }
+
+
+    /* ==============================
+       RODAPÉ
+    ============================== */
+
+    const footer =
+        document.querySelector("footer p");
+
+    if (footer) {
+        footer.textContent =
+            t.rodape;
+    }
+
+
+    /* =================================================
+       ATUALIZA OS BOTÕES PT / ES / EN
+    ================================================= */
+
+    document
+        .querySelectorAll(".idioma-selector button")
+        .forEach(function (botao) {
+
+            botao.classList.remove("active");
+
+        });
+
+
+    const botaoAtivo =
+        document.getElementById(
+            "btn-" + idioma
+        );
+
+    if (botaoAtivo) {
+
+        botaoAtivo.classList.add(
+            "active"
+        );
+
+    }
+
+
+    /* =================================================
+       GUARDA O IDIOMA ESCOLHIDO
+    ================================================= */
+
+    localStorage.setItem(
+        "idiomaSite",
+        idioma
+    );
+}
+
+
+/* =====================================================
+   BOTÃO PT
+===================================================== */
+
+const btnPT =
+    document.getElementById("btn-pt");
+
+if (btnPT) {
+
+    btnPT.addEventListener(
+        "click",
+        function () {
+
+            mudarIdioma("pt");
+
+        }
+    );
+}
+
+
+/* =====================================================
+   BOTÃO ES
+===================================================== */
+
+const btnES =
+    document.getElementById("btn-es");
+
+if (btnES) {
+
+    btnES.addEventListener(
+        "click",
+        function () {
+
+            mudarIdioma("es");
+
+        }
+    );
+}
+
+
+/* =====================================================
+   BOTÃO EN
+===================================================== */
+
+const btnEN =
+    document.getElementById("btn-en");
+
+if (btnEN) {
+
+    btnEN.addEventListener(
+        "click",
+        function () {
+
+            mudarIdioma("en");
+
+        }
+    );
+}
+
+
+/* =====================================================
+   RECUPERA O IDIOMA SALVO
+===================================================== */
+
+const idiomaSalvo =
+    localStorage.getItem(
+        "idiomaSite"
     );
 
 
-botoesIdioma.forEach(botao => {
+if (idiomaSalvo && textos[idiomaSalvo]) {
 
-    botao.addEventListener("click", () => {
+    mudarIdioma(idiomaSalvo);
 
-        botoesIdioma.forEach(b => {
-            b.classList.remove("active");
-        });
+} else {
 
-        botao.classList.add("active");
-
-        const idioma =
-            botao.dataset.lang;
-
-        console.log(
-            "Idioma da interface:",
-            idioma
-        );
-
-    });
-
-});
-
-
-// =====================================
-// SELEÇÃO DO ARQUIVO
-// =====================================
-arquivoInput.addEventListener(
-    "change",
-    function () {
-
-        arquivoAtual =
-            this.files[0];
-
-
-        if (!arquivoAtual) {
-
-            arquivoSelecionado.textContent =
-                "Nenhum arquivo selecionado.";
-
-            return;
-        }
-
-
-        const extensao =
-            arquivoAtual.name
-                .split(".")
-                .pop()
-                .toLowerCase();
-
-
-        const formatosPermitidos = [
-            "pdf",
-            "docx",
-            "pptx"
-        ];
-
-
-        if (
-            !formatosPermitidos.includes(
-                extensao
-            )
-        ) {
-
-            arquivoSelecionado.textContent =
-                "❌ Formato não permitido.";
-
-            arquivoAtual = null;
-
-            return;
-        }
-
-
-        arquivoSelecionado.innerHTML =
-            `📄 <strong>${arquivoAtual.name}</strong>`;
-
-    }
-);
-
-
-// =====================================
-// BOTÃO PREPARAR TRADUÇÃO
-// =====================================
-
-btnTraduzir.addEventListener(
-    "click",
-    async function () {
-
-        if (!arquivoAtual) {
-
-            mostrarMensagem(
-                "⚠️ Primeiro selecione um arquivo.",
-                true
-            );
-
-            return;
-        }
-
-
-        mostrarMensagem(
-            "⏳ Lendo o arquivo..."
-        );
-
-
-        btnTraduzir.disabled = true;
-
-
-        try {
-
-            const extensao =
-                arquivoAtual.name
-                    .split(".")
-                    .pop()
-                    .toLowerCase();
-
-
-            // PDF
-
-            if (extensao === "pdf") {
-
-                textoExtraido =
-                    await lerPDF(
-                        arquivoAtual
-                    );
-            }
-
-
-            // WORD
-
-            else if (extensao === "docx") {
-
-                textoExtraido =
-                    await lerWord(
-                        arquivoAtual
-                    );
-            }
-
-
-            // POWERPOINT
-
-            else if (extensao === "pptx") {
-
-                textoExtraido =
-                    await lerPowerPoint(
-                        arquivoAtual
-                    );
-            }
-
-
-            if (!textoExtraido) {
-
-                throw new Error(
-                    "Não foi possível encontrar texto no arquivo."
-                );
-
-            }
-
-
-            mostrarResultado();
-
-
-            mostrarMensagem(
-                "✅ Arquivo lido com sucesso!"
-            );
-
-        }
-
-        catch (erro) {
-
-            console.error(erro);
-
-            mostrarMensagem(
-                "❌ Não foi possível ler o arquivo.",
-                true
-            );
-
-        }
-
-        finally {
-
-            btnTraduzir.disabled = false;
-
-        }
-
-    }
-);
-
-
-// =====================================
-// LER PDF
-// =====================================
-
-async function lerPDF(arquivo) {
-
-    const arrayBuffer =
-        await arquivo.arrayBuffer();
-
-
-    const pdfjsLib =
-        await import(
-            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs"
-        );
-
-
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs";
-
-
-    const pdf =
-        await pdfjsLib.getDocument({
-            data: arrayBuffer
-        }).promise;
-
-
-    let texto = "";
-
-
-    for (
-        let pagina = 1;
-        pagina <= pdf.numPages;
-        pagina++
-    ) {
-
-        const page =
-            await pdf.getPage(pagina);
-
-
-        const content =
-            await page.getTextContent();
-
-
-        const linhas =
-            content.items
-                .map(item => item.str)
-                .join(" ");
-
-
-        texto +=
-            `\n\n--- Página ${pagina} ---\n\n`;
-
-        texto += linhas;
-
-    }
-
-
-    return texto.trim();
+    mudarIdioma("pt");
 
 }
-
-
-// =====================================
-// LER WORD
-// =====================================
-
-async function lerWord(arquivo) {
-
-    const arrayBuffer =
-        await arquivo.arrayBuffer();
-
-
-    const resultadoWord =
-        await mammoth.extractRawText({
-            arrayBuffer: arrayBuffer
-        });
-
-
-    return resultadoWord.value.trim();
-
-}
-
-
-// =====================================
-// LER POWERPOINT
-// =====================================
-
-async function lerPowerPoint(arquivo) {
-
-    const arrayBuffer =
-        await arquivo.arrayBuffer();
-
-
-    const zip =
-        await JSZip.loadAsync(
-            arrayBuffer
-        );
-
-
-    let texto = "";
-
-
-    const arquivos =
-        Object.keys(zip.files);
-
-
-    const slides =
-        arquivos
-            .filter(nome =>
-                /^ppt\/slides\/slide\d+\.xml$/
-                    .test(nome)
-            )
-            .sort((a, b) => {
-
-                const numeroA =
-                    parseInt(
-                        a.match(/slide(\d+)/)[1]
-                    );
-
-                const numeroB =
-                    parseInt(
-                        b.match(/slide(\d+)/)[1]
-                    );
-
-                return numeroA - numeroB;
-
-            });
-
-
-    for (
-        let i = 0;
-        i < slides.length;
-        i++
-    ) {
-
-        const nomeSlide =
-            slides[i];
-
-
-        const conteudo =
-            await zip.files[
-                nomeSlide
-            ].async("text");
-
-
-        const parser =
-            new DOMParser();
-
-
-        const xml =
-            parser.parseFromString(
-                conteudo,
-                "application/xml"
-            );
-
-
-        const elementos =
-            xml.getElementsByTagName(
-                "a:t"
-            );
-
-
-        let textoSlide = "";
-
-
-        for (
-            let j = 0;
-            j < elementos.length;
-            j++
-        ) {
-
-            textoSlide +=
-                elementos[j].textContent +
-                " ";
-
-        }
-
-
-        texto +=
-            `\n\n--- Slide ${i + 1} ---\n\n`;
-
-        texto +=
-            textoSlide.trim();
-
-    }
-
-
-    return texto.trim();
-
-}
-
-
-// =====================================
-// MOSTRAR RESULTADO
-// =====================================
-
-function mostrarResultado() {
-
-    resultado.style.display =
-        "block";
-
-
-    nomeResultado.textContent =
-        arquivoAtual.name;
-
-
-    const extensao =
-        arquivoAtual.name
-            .split(".")
-            .pop()
-            .toUpperCase();
-
-
-    formatoResultado.textContent =
-        extensao;
-
-
-    const idioma =
-        document.getElementById(
-            "idiomaDestino"
-        );
-
-
-    idiomaResultado.textContent =
-        idioma.options[
-            idioma.selectedIndex
-        ].text;
-
-
-    const modo =
-        document.getElementById(
-            "tipoTraducao"
-        );
-
-
-    modoResultado.textContent =
-        modo.options[
-            modo.selectedIndex
-        ].text;
-
-
-    visualizacao.textContent =
-        textoExtraido;
-
-
-    resultado.scrollIntoView({
-        behavior: "smooth"
-    });
-
-}
-
-
-// =====================================
-// MENSAGENS
-// =====================================
-
-function mostrarMensagem(
-    texto,
-    erro = false
-) {
-
-    mensagem.textContent =
-        texto;
-
-
-    mensagem.style.color =
-        erro
-            ? "#c62828"
-            : "#2980b9";
-
-}
-
-
-// =====================================
-// NOVO ARQUIVO
-// =====================================
-
-btnNovo.addEventListener(
-    "click",
-    function () {
-
-        arquivoInput.value =
-            "";
-
-        arquivoAtual =
-            null;
-
-        textoExtraido =
-            "";
-
-        arquivoSelecionado.textContent =
-            "Nenhum arquivo selecionado.";
-
-        visualizacao.textContent =
-            "O conteúdo do arquivo aparecerá aqui.";
-
-        resultado.style.display =
-            "none";
-
-        mensagem.textContent =
-            "";
-
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth"
-        });
-
-    }
-);
-
-
-// =====================================
-// BAIXAR TEXTO
-// =====================================
-
-btnBaixar.addEventListener(
-    "click",
-    function () {
-
-        if (!textoExtraido) {
-
-            mostrarMensagem(
-                "⚠️ Não existe conteúdo para baixar.",
-                true
-            );
-
-            return;
-        }
-
-
-        const blob =
-            new Blob(
-                [textoExtraido],
-                {
-                    type:
-                        "text/plain;charset=utf-8"
-                }
-            );
-
-
-        const url =
-            URL.createObjectURL(blob);
-
-
-        const link =
-            document.createElement("a");
-
-
-        link.href =
-            url;
-
-
-        link.download =
-            "material-traduzido.txt";
-
-
-        document.body.appendChild(
-            link
-        );
-
-
-        link.click();
-
-
-        document.body.removeChild(
-            link
-        );
-
-
-        URL.revokeObjectURL(
-            url
-        );
-
-    }
-);
