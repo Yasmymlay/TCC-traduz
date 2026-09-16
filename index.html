@@ -9,7 +9,7 @@
 
     <link rel="stylesheet" href="style.css">
 
-    <!-- PDF.js -->
+    <!-- PDF.js - leitura de PDF -->
     <script
         src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs"
         type="module">
@@ -20,7 +20,7 @@
         src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js">
     </script>
 
-    <!-- JSZip - leitura de PowerPoint -->
+    <!-- JSZip - leitura do PowerPoint -->
     <script
         src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js">
     </script>
@@ -29,9 +29,9 @@
 
 <body>
 
-    <!-- =====================================
+    <!-- ==============================
          CABEÇALHO
-    ====================================== -->
+    =============================== -->
 
     <header>
 
@@ -65,9 +65,9 @@
     </header>
 
 
-    <!-- =====================================
+    <!-- ==============================
          BANNER
-    ====================================== -->
+    =============================== -->
 
     <section class="banner">
 
@@ -82,29 +82,24 @@
     </section>
 
 
-    <!-- =====================================
+    <!-- ==============================
          CONTEÚDO PRINCIPAL
-    ====================================== -->
+    =============================== -->
 
     <main class="container">
 
-
-        <!-- =====================================
-             ÁREA DE UPLOAD
-        ====================================== -->
-
         <section class="card">
 
-            <h2>
-                📄 Envie seu material
-            </h2>
+            <h2>📄 Envie seu material</h2>
 
             <p class="subtitulo">
                 PDF • Word • PowerPoint
             </p>
 
 
-            <!-- Área para selecionar arquivo -->
+            <!-- ==============================
+                 ÁREA DE UPLOAD
+            =============================== -->
 
             <label
                 for="arquivo"
@@ -131,7 +126,9 @@
                 accept=".pdf,.docx,.pptx">
 
 
-            <!-- Arquivo selecionado -->
+            <!-- ==============================
+                 ARQUIVO SELECIONADO
+            =============================== -->
 
             <div
                 id="arquivoSelecionado"
@@ -142,9 +139,9 @@
             </div>
 
 
-            <!-- =====================================
+            <!-- ==============================
                  IDIOMAS
-            ====================================== -->
+            =============================== -->
 
             <div class="idiomas">
 
@@ -237,9 +234,9 @@
             </div>
 
 
-            <!-- =====================================
-                 MODO DE TRADUÇÃO
-            ====================================== -->
+            <!-- ==============================
+                 TIPO DE TRADUÇÃO
+            =============================== -->
 
             <div class="modo">
 
@@ -262,9 +259,9 @@
             </div>
 
 
-            <!-- =====================================
-                 BOTÃO
-            ====================================== -->
+            <!-- ==============================
+                 BOTÃO DE TRADUÇÃO
+            =============================== -->
 
             <button
                 id="btnTraduzir"
@@ -275,7 +272,9 @@
             </button>
 
 
-            <!-- Mensagem -->
+            <!-- ==============================
+                 MENSAGEM
+            =============================== -->
 
             <div
                 id="mensagem"
@@ -285,24 +284,22 @@
         </section>
 
 
-
-        <!-- =====================================
-             RESULTADO / SLIDES
-        ====================================== -->
+        <!-- ==============================
+             RESULTADO
+        =============================== -->
 
         <section
             id="resultado"
             class="card resultado">
 
-
-            <!-- =================================
-                 INFORMAÇÕES DO ARQUIVO
-            ================================== -->
-
             <h2>
                 ✅ Material traduzido
             </h2>
 
+
+            <!-- ==============================
+                 INFORMAÇÕES DO ARQUIVO
+            =============================== -->
 
             <div class="informacoes">
 
@@ -312,7 +309,8 @@
                         Arquivo:
                     </strong>
 
-                    <span id="nomeResultado"></span>
+                    <span id="nomeResultado">
+                    </span>
 
                 </p>
 
@@ -323,7 +321,8 @@
                         Formato:
                     </strong>
 
-                    <span id="formatoResultado"></span>
+                    <span id="formatoResultado">
+                    </span>
 
                 </p>
 
@@ -334,7 +333,8 @@
                         Idioma destino:
                     </strong>
 
-                    <span id="idiomaResultado"></span>
+                    <span id="idiomaResultado">
+                    </span>
 
                 </p>
 
@@ -345,64 +345,69 @@
                         Modo:
                     </strong>
 
-                    <span id="modoResultado"></span>
+                    <span id="modoResultado">
+                    </span>
 
                 </p>
 
             </div>
 
 
+            <!-- ==============================
+                 VISUALIZAÇÃO EM SLIDES
+            =============================== -->
 
-            <!-- =================================
-                 ÁREA DOS SLIDES
-            ================================== -->
+            <h3>
+                👁 Visualização do conteúdo
+            </h3>
 
-            <div class="area-slides">
+
+            <div class="visualizacao-slides">
 
 
                 <!-- Número do slide -->
 
-                <div
-                    id="slideNumero"
-                    class="slide-numero">
+                <div class="slide-topo">
 
-                    Slide 1
-
-                </div>
-
-
-                <!-- Título -->
-
-                <h3
-                    id="slideTitulo"
-                    class="slide-titulo">
-
-                    Tradução
-
-                </h3>
-
-
-                <!-- Conteúdo -->
-
-                <div
-                    id="slideConteudo"
-                    class="slide-conteudo">
-
-                    O conteúdo traduzido aparecerá aqui.
+                    <span id="slideNumero">
+                        Slide 1
+                    </span>
 
                 </div>
 
 
-                <!-- =================================
+                <!-- ==========================
+                     SLIDE
+                =========================== -->
+
+                <div class="slide">
+
+                    <h2 id="slideTitulo">
+                        Material traduzido
+                    </h2>
+
+
+                    <div
+                        id="slideConteudo"
+                        class="slide-conteudo">
+
+                        O conteúdo traduzido aparecerá aqui.
+
+                    </div>
+
+                </div>
+
+
+                <!-- ==========================
                      NAVEGAÇÃO
-                ================================== -->
+                =========================== -->
 
                 <div class="navegacao-slides">
 
 
                     <button
                         id="slideAnterior"
-                        class="btn-secundario"
+                        class="btn-slide"
                         disabled>
 
                         ← Anterior
@@ -410,18 +415,14 @@
                     </button>
 
 
-                    <span
-                        id="contadorSlide"
-                        class="contador-slide">
-
+                    <span id="contadorSlide">
                         1 / 1
-
                     </span>
 
 
                     <button
                         id="slideProximo"
-                        class="btn-secundario">
+                        class="btn-slide">
 
                         Próximo →
 
@@ -432,13 +433,11 @@
             </div>
 
 
-
-            <!-- =================================
+            <!-- ==============================
                  BOTÕES INFERIORES
-            ================================== -->
+            =============================== -->
 
             <div class="botoes">
-
 
                 <button
                     id="btnBaixar"
@@ -457,19 +456,16 @@
 
                 </button>
 
-
             </div>
-
 
         </section>
 
     </main>
 
 
-
-    <!-- =====================================
+    <!-- ==============================
          RODAPÉ
-    ====================================== -->
+    =============================== -->
 
     <footer>
 
@@ -480,13 +476,12 @@
     </footer>
 
 
-
-    <!-- =====================================
+    <!-- ==============================
          JAVASCRIPT
-    ====================================== -->
+    =============================== -->
 
     <script src="script.js"></script>
 
 </body>
 
-</html> 
+</html>
