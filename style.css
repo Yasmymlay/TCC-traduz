@@ -18,7 +18,7 @@ body {
             #faf8ff 100%
         );
 
-    color: #526f94;
+    color: #87d0e1;
 
     min-height: 100vh;
 }
@@ -42,8 +42,8 @@ header {
     background:
         linear-gradient(
             135deg,
-            #8cc9ea,
-            #b8afe7
+            #46b671,
+            #8dd6a0
         );
 
     box-shadow:
@@ -107,7 +107,7 @@ header {
 .idioma-selector button.active {
     background: white;
 
-    color: #617da5;
+    color: #71f0a2;
 
     box-shadow:
         0 3px 10px rgba(80,100,150,0.12);
@@ -130,9 +130,9 @@ header {
     background:
         linear-gradient(
             135deg,
-            #91d0ed,
-            #a9cfee 45%,
-            #c5bce9
+            #96e87d,
+            #5ef0aa 45%,
+            #069561
         );
 
     position: relative;
@@ -270,7 +270,7 @@ header {
 }
 
 .card h2 {
-    color: #476998;
+    color: #41a174;
 
     font-size: 22px;
 
@@ -278,7 +278,7 @@ header {
 }
 
 .titulo-card p {
-    color: #7690af;
+    color: #84df63;
 
     font-size: 13px;
 }
@@ -343,8 +343,8 @@ header {
     background:
         linear-gradient(
             135deg,
-            #71bce8,
-            #9c91dc
+            #37d584,
+            #399f7d
         );
 
     padding: 12px 27px;
@@ -360,7 +360,7 @@ header {
 }
 
 .upload-area span {
-    color: #6682a5;
+    color: #5dab6d;
 
     font-size: 13px;
 
@@ -368,7 +368,7 @@ header {
 }
 
 .upload-area small {
-    color: #9aadc4;
+    color: #246b3e;
 
     font-size: 12px;
 }
@@ -406,7 +406,7 @@ input[type="file"] {
 
     gap: 12px;
 
-    color: #58759a;
+    color: #1f7c65;
 }
 
 .arquivo-icone {
