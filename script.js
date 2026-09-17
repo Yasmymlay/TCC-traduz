@@ -2,61 +2,36 @@
 // ELEMENTOS DO SITE
 // =====================================
 
-const arquivoInput =
-    document.getElementById("arquivo");
+const arquivoInput = document.getElementById("arquivo");
+const arquivoSelecionado = document.getElementById("arquivoSelecionado");
+const btnTraduzir = document.getElementById("btnTraduzir");
+const resultado = document.getElementById("resultado");
+const mensagem = document.getElementById("mensagem");
 
-const arquivoSelecionado =
-    document.getElementById("arquivoSelecionado");
+const nomeResultado = document.getElementById("nomeResultado");
+const formatoResultado = document.getElementById("formatoResultado");
+const idiomaResultado = document.getElementById("idiomaResultado");
+const modoResultado = document.getElementById("modoResultado");
 
-const btnTraduzir =
-    document.getElementById("btnTraduzir");
+const visualizacao = document.getElementById("visualizacao");
 
-const resultado =
-    document.getElementById("resultado");
-
-const mensagem =
-    document.getElementById("mensagem");
-
-const nomeResultado =
-    document.getElementById("nomeResultado");
-
-const formatoResultado =
-    document.getElementById("formatoResultado");
-
-const idiomaResultado =
-    document.getElementById("idiomaResultado");
-
-const modoResultado =
-    document.getElementById("modoResultado");
-
-const btnBaixar =
-    document.getElementById("btnBaixar");
-
-const btnNovo =
-    document.getElementById("btnNovo");
+const btnBaixar = document.getElementById("btnBaixar");
+const btnNovo = document.getElementById("btnNovo");
 
 
 // =====================================
 // ELEMENTOS DOS SLIDES
 // =====================================
+// São opcionais.
+// Seu HTML pode não ter esses elementos,
+// e o sistema continuará funcionando.
 
-const slideNumero =
-    document.getElementById("slideNumero");
-
-const slideTitulo =
-    document.getElementById("slideTitulo");
-
-const slideConteudo =
-    document.getElementById("slideConteudo");
-
-const contadorSlide =
-    document.getElementById("contadorSlide");
-
-const slideAnterior =
-    document.getElementById("slideAnterior");
-
-const slideProximo =
-    document.getElementById("slideProximo");
+const slideNumero = document.getElementById("slideNumero");
+const slideTitulo = document.getElementById("slideTitulo");
+const slideConteudo = document.getElementById("slideConteudo");
+const contadorSlide = document.getElementById("contadorSlide");
+const slideAnterior = document.getElementById("slideAnterior");
+const slideProximo = document.getElementById("slideProximo");
 
 
 // =====================================
@@ -64,31 +39,39 @@ const slideProximo =
 // =====================================
 
 let arquivoAtual = null;
-
 let textoExtraido = "";
-
 let textoTraduzido = "";
 
 let slides = [];
-
 let slideAtual = 0;
+
+
+// =====================================
+// VERIFICAÇÃO DOS ELEMENTOS
+// =====================================
+
+if (!arquivoInput) {
+    console.error("Elemento #arquivo não encontrado.");
+}
+
+if (!btnTraduzir) {
+    console.error("Elemento #btnTraduzir não encontrado.");
+}
 
 
 // =====================================
 // IDIOMAS DO CABEÇALHO
 // =====================================
 
-const botoesIdioma =
-    document.querySelectorAll(
-        ".idioma-selector button"
-    );
+const botoesIdioma = document.querySelectorAll(
+    ".idioma-selector button"
+);
 
-
-botoesIdioma.forEach(botao => {
+botoesIdioma.forEach((botao) => {
 
     botao.addEventListener("click", () => {
 
-        botoesIdioma.forEach(b => {
+        botoesIdioma.forEach((b) => {
             b.classList.remove("active");
         });
 
@@ -98,7 +81,6 @@ botoesIdioma.forEach(botao => {
             "Idioma da interface:",
             botao.dataset.lang
         );
-
     });
 
 });
@@ -108,9 +90,9 @@ botoesIdioma.forEach(botao => {
 // SELEÇÃO DO ARQUIVO
 // =====================================
 
-arquivoInput.addEventListener(
-    "change",
-    function () {
+if (arquivoInput) {
+
+    arquivoInput.addEventListener("change", function () {
 
         arquivoAtual = this.files[0];
 
@@ -122,11 +104,12 @@ arquivoInput.addEventListener(
             return;
         }
 
-        const extensao =
-            arquivoAtual.name
-                .split(".")
-                .pop()
-                .toLowerCase();
+
+        const extensao = arquivoAtual.name
+            .split(".")
+            .pop()
+            .toLowerCase();
+
 
         const formatosPermitidos = [
             "pdf",
@@ -134,185 +117,205 @@ arquivoInput.addEventListener(
             "pptx"
         ];
 
-        if (
-            !formatosPermitidos.includes(
-                extensao
-            )
-        ) {
+
+        if (!formatosPermitidos.includes(extensao)) {
 
             arquivoSelecionado.textContent =
                 "❌ Formato não permitido.";
 
             arquivoAtual = null;
 
+            this.value = "";
+
             return;
         }
 
-        arquivoSelecionado.innerHTML =
-            `📄 <strong>${arquivoAtual.name}</strong>`;
 
-    }
-);
+        arquivoSelecionado.innerHTML =
+            `📄 <strong>${escaparHTML(arquivoAtual.name)}</strong>`;
+
+        mostrarMensagem(
+            "✅ Arquivo selecionado."
+        );
+
+    });
+
+}
 
 
 // =====================================
 // BOTÃO TRADUZIR
 // =====================================
 
-btnTraduzir.addEventListener(
-    "click",
-    async function () {
+if (btnTraduzir) {
 
-        if (!arquivoAtual) {
+    btnTraduzir.addEventListener(
+        "click",
+        async function () {
 
-            mostrarMensagem(
-                "⚠️ Primeiro selecione um arquivo.",
-                true
-            );
+            if (!arquivoAtual) {
 
-            return;
-        }
-
-
-        const origem =
-            document.getElementById(
-                "idiomaOrigem"
-            ).value;
-
-
-        const destino =
-            document.getElementById(
-                "idiomaDestino"
-            ).value;
-
-
-        btnTraduzir.disabled = true;
-
-        btnTraduzir.textContent =
-            "⏳ Processando...";
-
-
-        try {
-
-            const extensao =
-                arquivoAtual.name
-                    .split(".")
-                    .pop()
-                    .toLowerCase();
-
-
-            // =================================
-            // LER ARQUIVO
-            // =================================
-
-            mostrarMensagem(
-                "📖 Lendo o material..."
-            );
-
-
-            if (extensao === "pdf") {
-
-                textoExtraido =
-                    await lerPDF(
-                        arquivoAtual
-                    );
-
-            }
-
-            else if (extensao === "docx") {
-
-                textoExtraido =
-                    await lerWord(
-                        arquivoAtual
-                    );
-
-            }
-
-            else if (extensao === "pptx") {
-
-                textoExtraido =
-                    await lerPowerPoint(
-                        arquivoAtual
-                    );
-
-            }
-
-
-            if (!textoExtraido) {
-
-                throw new Error(
-                    "Não foi encontrado texto no arquivo."
+                mostrarMensagem(
+                    "⚠️ Primeiro selecione um arquivo.",
+                    true
                 );
 
+                return;
             }
 
 
-            // =================================
-            // TRADUZIR
-            // =================================
+            const origemElement =
+                document.getElementById("idiomaOrigem");
 
-            mostrarMensagem(
-                "🌎 Traduzindo o material..."
-            );
+            const destinoElement =
+                document.getElementById("idiomaDestino");
 
 
-            textoTraduzido =
-                await traduzirTexto(
-                    textoExtraido,
-                    origem,
-                    destino
+            if (!origemElement || !destinoElement) {
+
+                mostrarMensagem(
+                    "❌ Campos de idioma não encontrados.",
+                    true
                 );
 
-
-            if (!textoTraduzido) {
-
-                throw new Error(
-                    "A tradução não retornou conteúdo."
-                );
-
+                return;
             }
 
 
-            // =================================
-            // MOSTRAR RESULTADO
-            // =================================
-
-            mostrarResultado();
+            const origem = origemElement.value;
+            const destino = destinoElement.value;
 
 
-            mostrarMensagem(
-                "✅ Material traduzido com sucesso!"
-            );
-
-        }
-
-        catch (erro) {
-
-            console.error(
-                "ERRO:",
-                erro
-            );
-
-
-            mostrarMensagem(
-                "❌ " + erro.message,
-                true
-            );
-
-        }
-
-        finally {
-
-            btnTraduzir.disabled =
-                false;
+            btnTraduzir.disabled = true;
 
             btnTraduzir.textContent =
-                "🔄 Preparar tradução";
+                "⏳ Processando...";
+
+
+            try {
+
+                const extensao =
+                    arquivoAtual.name
+                        .split(".")
+                        .pop()
+                        .toLowerCase();
+
+
+                // =================================
+                // LER ARQUIVO
+                // =================================
+
+                mostrarMensagem(
+                    "📖 Lendo o material..."
+                );
+
+
+                if (extensao === "pdf") {
+
+                    textoExtraido =
+                        await lerPDF(arquivoAtual);
+
+                }
+
+                else if (extensao === "docx") {
+
+                    textoExtraido =
+                        await lerWord(arquivoAtual);
+
+                }
+
+                else if (extensao === "pptx") {
+
+                    textoExtraido =
+                        await lerPowerPoint(arquivoAtual);
+
+                }
+
+                else {
+
+                    throw new Error(
+                        "Formato de arquivo não suportado."
+                    );
+
+                }
+
+
+                if (!textoExtraido || !textoExtraido.trim()) {
+
+                    throw new Error(
+                        "Não foi encontrado texto no arquivo."
+                    );
+
+                }
+
+
+                // =================================
+                // TRADUZIR
+                // =================================
+
+                mostrarMensagem(
+                    "🌎 Traduzindo o material..."
+                );
+
+
+                textoTraduzido =
+                    await traduzirTexto(
+                        textoExtraido,
+                        origem,
+                        destino
+                    );
+
+
+                if (!textoTraduzido || !textoTraduzido.trim()) {
+
+                    throw new Error(
+                        "A tradução não retornou conteúdo."
+                    );
+
+                }
+
+
+                // =================================
+                // MOSTRAR RESULTADO
+                // =================================
+
+                mostrarResultado();
+
+
+                mostrarMensagem(
+                    "✅ Material traduzido com sucesso!"
+                );
+
+            }
+
+            catch (erro) {
+
+                console.error(
+                    "ERRO:",
+                    erro
+                );
+
+
+                mostrarMensagem(
+                    "❌ " + erro.message,
+                    true
+                );
+
+            }
+
+            finally {
+
+                btnTraduzir.disabled = false;
+
+                btnTraduzir.textContent =
+                    "🔄 Preparar tradução";
+
+            }
 
         }
+    );
 
-    }
-);
+}
 
 
 // =====================================
@@ -330,9 +333,7 @@ async function traduzirTexto(
     // =====================================
 
     if (origem === destino) {
-
         return texto;
-
     }
 
 
@@ -352,16 +353,14 @@ async function traduzirTexto(
 
     if (extensao === "pptx") {
 
-        blocos =
-            texto
-                .split(
-                    /(?=---\s*Slide\s+\d+\s*---)/i
-                )
-                .filter(
-                    bloco =>
-                        bloco.trim()
-                            .length > 0
-                );
+        blocos = texto
+            .split(
+                /(?=---\s*(?:\*?\s*)Slide\s+\d+\s*(?:\*?\s*)---)/i
+            )
+            .filter(
+                bloco =>
+                    bloco.trim().length > 0
+            );
 
     }
 
@@ -372,16 +371,14 @@ async function traduzirTexto(
 
     else if (extensao === "pdf") {
 
-        blocos =
-            texto
-                .split(
-                    /(?=---\s*Página\s+\d+\s*---)/i
-                )
-                .filter(
-                    bloco =>
-                        bloco.trim()
-                            .length > 0
-                );
+        blocos = texto
+            .split(
+                /(?=---\s*(?:\*?\s*)Página\s+\d+\s*(?:\*?\s*)---)/i
+            )
+            .filter(
+                bloco =>
+                    bloco.trim().length > 0
+            );
 
     }
 
@@ -428,7 +425,7 @@ async function traduzirTexto(
 
             const encontrado =
                 bloco.match(
-                    /^---\s*(Slide|Página)\s+\d+\s*---/i
+                    /^---\s*(?:\*?\s*)?(Slide|Página)\s+\d+\s*(?:\*?\s*)?---/i
                 );
 
 
@@ -460,18 +457,19 @@ async function traduzirTexto(
             );
 
             continue;
-
         }
 
 
+        const tipoMaterial =
+            extensao === "pptx"
+                ? "slide"
+                : extensao === "pdf"
+                    ? "página"
+                    : "conteúdo";
+
+
         mostrarMensagem(
-            `🌎 Traduzindo ${
-                extensao === "pptx"
-                    ? "slide"
-                    : extensao === "pdf"
-                        ? "página"
-                        : "conteúdo"
-            } ${i + 1} de ${blocos.length}...`
+            `🌎 Traduzindo ${tipoMaterial} ${i + 1} de ${blocos.length}...`
         );
 
 
@@ -479,9 +477,7 @@ async function traduzirTexto(
         // DIVIDIR TEXTO GRANDE
         // =================================
 
-        const tamanhoMaximo =
-            3000;
-
+        const tamanhoMaximo = 3000;
 
         const partes = [];
 
@@ -543,39 +539,67 @@ async function traduzirTexto(
             );
 
 
-            const resposta =
-                await fetch(
-                    "http://127.0.0.1:5000/translate",
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "application/x-www-form-urlencoded"
-                        },
-
-                        body:
-                            dados.toString()
-                    }
-                );
+            let resposta;
 
 
-            if (!resposta.ok) {
+            try {
+
+                resposta =
+                    await fetch(
+                        "http://127.0.0.1:5000/translate",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/x-www-form-urlencoded"
+                            },
+
+                            body:
+                                dados.toString()
+                        }
+                    );
+
+            }
+
+            catch (erro) {
 
                 throw new Error(
-                    "Erro ao conectar com o LibreTranslate."
+                    "Não foi possível conectar ao LibreTranslate. Verifique se ele está rodando em http://127.0.0.1:5000."
                 );
 
             }
 
 
-            const resultadoAPI =
-                await resposta.json();
+            if (!resposta.ok) {
+
+                throw new Error(
+                    `Erro do LibreTranslate. Código: ${resposta.status}`
+                );
+
+            }
 
 
-            if (
-                resultadoAPI.error
-            ) {
+            let resultadoAPI;
+
+
+            try {
+
+                resultadoAPI =
+                    await resposta.json();
+
+            }
+
+            catch (erro) {
+
+                throw new Error(
+                    "O LibreTranslate retornou uma resposta inválida."
+                );
+
+            }
+
+
+            if (resultadoAPI.error) {
 
                 throw new Error(
                     resultadoAPI.error
@@ -584,9 +608,7 @@ async function traduzirTexto(
             }
 
 
-            if (
-                !resultadoAPI.translatedText
-            ) {
+            if (!resultadoAPI.translatedText) {
 
                 throw new Error(
                     "O LibreTranslate não retornou a tradução."
@@ -719,6 +741,15 @@ async function lerPDF(arquivo) {
 
 async function lerWord(arquivo) {
 
+    if (typeof mammoth === "undefined") {
+
+        throw new Error(
+            "A biblioteca Mammoth não foi carregada."
+        );
+
+    }
+
+
     const arrayBuffer =
         await arquivo.arrayBuffer();
 
@@ -739,6 +770,15 @@ async function lerWord(arquivo) {
 // =====================================
 
 async function lerPowerPoint(arquivo) {
+
+    if (typeof JSZip === "undefined") {
+
+        throw new Error(
+            "A biblioteca JSZip não foi carregada."
+        );
+
+    }
+
 
     const arrayBuffer =
         await arquivo.arrayBuffer();
@@ -789,6 +829,15 @@ async function lerPowerPoint(arquivo) {
 
                 }
             );
+
+
+    if (slidesArquivo.length === 0) {
+
+        throw new Error(
+            "Nenhum slide foi encontrado no PowerPoint."
+        );
+
+    }
 
 
     for (
@@ -861,12 +910,21 @@ async function lerPowerPoint(arquivo) {
 
 function mostrarResultado() {
 
+    if (!resultado) {
+        return;
+    }
+
+
     resultado.style.display =
         "block";
 
 
-    nomeResultado.textContent =
-        arquivoAtual.name;
+    if (nomeResultado) {
+
+        nomeResultado.textContent =
+            arquivoAtual.name;
+
+    }
 
 
     const extensao =
@@ -876,8 +934,12 @@ function mostrarResultado() {
             .toUpperCase();
 
 
-    formatoResultado.textContent =
-        extensao;
+    if (formatoResultado) {
+
+        formatoResultado.textContent =
+            extensao;
+
+    }
 
 
     const idioma =
@@ -886,10 +948,14 @@ function mostrarResultado() {
         );
 
 
-    idiomaResultado.textContent =
-        idioma.options[
-            idioma.selectedIndex
-        ].text;
+    if (idioma && idiomaResultado) {
+
+        idiomaResultado.textContent =
+            idioma.options[
+                idioma.selectedIndex
+            ].text;
+
+    }
 
 
     const modo =
@@ -898,10 +964,14 @@ function mostrarResultado() {
         );
 
 
-    modoResultado.textContent =
-        modo.options[
-            modo.selectedIndex
-        ].text;
+    if (modo && modoResultado) {
+
+        modoResultado.textContent =
+            modo.options[
+                modo.selectedIndex
+            ].text;
+
+    }
 
 
     // =================================
@@ -909,6 +979,21 @@ function mostrarResultado() {
     // =================================
 
     prepararSlides();
+
+
+    // =================================
+    // MOSTRAR TEXTO NA VISUALIZAÇÃO
+    // =================================
+
+    if (
+        visualizacao &&
+        (!slideTitulo || !slideConteudo)
+    ) {
+
+        visualizacao.textContent =
+            textoTraduzido;
+
+    }
 
 
     resultado.scrollIntoView({
@@ -943,7 +1028,7 @@ function prepararSlides() {
         const partes =
             textoTraduzido
                 .split(
-                    /---\s*Slide\s+\d+\s*---/i
+                    /---\s*(?:\*?\s*)Slide\s+\d+\s*(?:\*?\s*)---/i
                 )
                 .map(
                     parte =>
@@ -1008,7 +1093,7 @@ function prepararSlides() {
         const partes =
             textoTraduzido
                 .split(
-                    /---\s*Página\s+\d+\s*---/i
+                    /---\s*(?:\*?\s*)Página\s+\d+\s*(?:\*?\s*)---/i
                 )
                 .map(
                     parte =>
@@ -1061,10 +1146,12 @@ function prepararSlides() {
                     `Parte ${slides.length + 1}`,
 
                 conteudo:
-                    textoTraduzido.substring(
-                        i,
-                        i + tamanho
-                    ).trim()
+                    textoTraduzido
+                        .substring(
+                            i,
+                            i + tamanho
+                        )
+                        .trim()
 
             });
 
@@ -1077,9 +1164,7 @@ function prepararSlides() {
     // GARANTIR PELO MENOS UM SLIDE
     // =====================================
 
-    if (
-        slides.length === 0
-    ) {
+    if (slides.length === 0) {
 
         slides.push({
 
@@ -1117,20 +1202,56 @@ function mostrarSlide() {
         slides[slideAtual];
 
 
-    slideNumero.textContent =
-        `Slide ${slideAtual + 1}`;
+    // =================================
+    // SE EXISTIREM ELEMENTOS DE SLIDE
+    // =================================
+
+    if (slideNumero) {
+
+        slideNumero.textContent =
+            `Slide ${slideAtual + 1}`;
+
+    }
 
 
-    slideTitulo.textContent =
-        slide.titulo;
+    if (slideTitulo) {
+
+        slideTitulo.textContent =
+            slide.titulo;
+
+    }
 
 
-    slideConteudo.textContent =
-        slide.conteudo;
+    if (slideConteudo) {
+
+        slideConteudo.textContent =
+            slide.conteudo;
+
+    }
 
 
-    contadorSlide.textContent =
-        `${slideAtual + 1} / ${slides.length}`;
+    if (contadorSlide) {
+
+        contadorSlide.textContent =
+            `${slideAtual + 1} / ${slides.length}`;
+
+    }
+
+
+    // =================================
+    // SE O HTML SÓ TEM VISUALIZAÇÃO
+    // =================================
+
+    if (
+        visualizacao &&
+        !slideTitulo &&
+        !slideConteudo
+    ) {
+
+        visualizacao.textContent =
+            textoTraduzido;
+
+    }
 
 
     atualizarBotoesSlides();
@@ -1144,13 +1265,20 @@ function mostrarSlide() {
 
 function atualizarBotoesSlides() {
 
-    slideAnterior.disabled =
-        slideAtual === 0;
+    if (slideAnterior) {
+
+        slideAnterior.disabled =
+            slideAtual === 0;
+
+    }
 
 
-    slideProximo.disabled =
-        slideAtual ===
-        slides.length - 1;
+    if (slideProximo) {
+
+        slideProximo.disabled =
+            slideAtual === slides.length - 1;
+
+    }
 
 }
 
@@ -1159,43 +1287,51 @@ function atualizarBotoesSlides() {
 // SLIDE ANTERIOR
 // =====================================
 
-slideAnterior.addEventListener(
-    "click",
-    function () {
+if (slideAnterior) {
 
-        if (slideAtual > 0) {
+    slideAnterior.addEventListener(
+        "click",
+        function () {
 
-            slideAtual--;
+            if (slideAtual > 0) {
 
-            mostrarSlide();
+                slideAtual--;
+
+                mostrarSlide();
+
+            }
 
         }
+    );
 
-    }
-);
+}
 
 
 // =====================================
 // PRÓXIMO SLIDE
 // =====================================
 
-slideProximo.addEventListener(
-    "click",
-    function () {
+if (slideProximo) {
 
-        if (
-            slideAtual <
-            slides.length - 1
-        ) {
+    slideProximo.addEventListener(
+        "click",
+        function () {
 
-            slideAtual++;
+            if (
+                slideAtual <
+                slides.length - 1
+            ) {
 
-            mostrarSlide();
+                slideAtual++;
+
+                mostrarSlide();
+
+            }
 
         }
+    );
 
-    }
-);
+}
 
 
 // =====================================
@@ -1207,14 +1343,19 @@ function mostrarMensagem(
     erro = false
 ) {
 
+    if (!mensagem) {
+        return;
+    }
+
+
     mensagem.textContent =
         texto;
 
 
     mensagem.style.color =
         erro
-            ? "#c62828"
-            : "#2980b9";
+            ? "#b85c67"
+            : "#7189a6";
 
 }
 
@@ -1223,130 +1364,207 @@ function mostrarMensagem(
 // NOVO ARQUIVO
 // =====================================
 
-btnNovo.addEventListener(
-    "click",
-    function () {
+if (btnNovo) {
 
-        arquivoInput.value =
-            "";
+    btnNovo.addEventListener(
+        "click",
+        function () {
 
-        arquivoAtual =
-            null;
+            if (arquivoInput) {
 
-        textoExtraido =
-            "";
+                arquivoInput.value =
+                    "";
 
-        textoTraduzido =
-            "";
-
-        slides = [];
-
-        slideAtual = 0;
+            }
 
 
-        arquivoSelecionado.textContent =
-            "Nenhum arquivo selecionado.";
+            arquivoAtual =
+                null;
 
 
-        slideNumero.textContent =
-            "Slide 1";
+            textoExtraido =
+                "";
 
 
-        slideTitulo.textContent =
-            "Tradução";
+            textoTraduzido =
+                "";
 
 
-        slideConteudo.textContent =
-            "O conteúdo traduzido aparecerá aqui.";
+            slides =
+                [];
 
 
-        contadorSlide.textContent =
-            "1 / 1";
+            slideAtual =
+                0;
 
 
-        resultado.style.display =
-            "none";
+            if (arquivoSelecionado) {
+
+                arquivoSelecionado.textContent =
+                    "Nenhum arquivo selecionado.";
+
+            }
 
 
-        mensagem.textContent =
-            "";
+            if (slideNumero) {
+
+                slideNumero.textContent =
+                    "Slide 1";
+
+            }
 
 
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth"
-        });
+            if (slideTitulo) {
 
-    }
-);
+                slideTitulo.textContent =
+                    "Tradução";
+
+            }
+
+
+            if (slideConteudo) {
+
+                slideConteudo.textContent =
+                    "O conteúdo traduzido aparecerá aqui.";
+
+            }
+
+
+            if (contadorSlide) {
+
+                contadorSlide.textContent =
+                    "1 / 1";
+
+            }
+
+
+            if (visualizacao) {
+
+                visualizacao.textContent =
+                    "O conteúdo do arquivo aparecerá aqui.";
+
+            }
+
+
+            if (resultado) {
+
+                resultado.style.display =
+                    "none";
+
+            }
+
+
+            if (mensagem) {
+
+                mensagem.textContent =
+                    "";
+
+            }
+
+
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+
+        }
+    );
+
+}
 
 
 // =====================================
 // BAIXAR TRADUÇÃO
 // =====================================
 
-btnBaixar.addEventListener(
-    "click",
-    function () {
+if (btnBaixar) {
 
-        if (!textoTraduzido) {
+    btnBaixar.addEventListener(
+        "click",
+        function () {
+
+            if (!textoTraduzido) {
+
+                mostrarMensagem(
+                    "⚠️ Não existe conteúdo para baixar.",
+                    true
+                );
+
+                return;
+
+            }
+
+
+            const blob =
+                new Blob(
+                    [textoTraduzido],
+                    {
+                        type:
+                            "text/plain;charset=utf-8"
+                    }
+                );
+
+
+            const url =
+                URL.createObjectURL(
+                    blob
+                );
+
+
+            const link =
+                document.createElement(
+                    "a"
+                );
+
+
+            link.href =
+                url;
+
+
+            link.download =
+                "material-traduzido.txt";
+
+
+            document.body.appendChild(
+                link
+            );
+
+
+            link.click();
+
+
+            document.body.removeChild(
+                link
+            );
+
+
+            URL.revokeObjectURL(
+                url
+            );
+
 
             mostrarMensagem(
-                "⚠️ Não existe conteúdo para baixar.",
-                true
+                "✅ Tradução baixada com sucesso!"
             );
-
-            return;
 
         }
+    );
+
+}
 
 
-        const blob =
-            new Blob(
-                [textoTraduzido],
-                {
-                    type:
-                        "text/plain;charset=utf-8"
-                }
-            );
+// =====================================
+// FUNÇÃO DE SEGURANÇA
+// =====================================
 
+function escaparHTML(texto) {
 
-        const url =
-            URL.createObjectURL(
-                blob
-            );
+    const div =
+        document.createElement("div");
 
+    div.textContent =
+        texto;
 
-        const link =
-            document.createElement(
-                "a"
-            );
+    return div.innerHTML;
 
-
-        link.href =
-            url;
-
-
-        link.download =
-            "material-traduzido.txt";
-
-
-        document.body.appendChild(
-            link
-        );
-
-
-        link.click();
-
-
-        document.body.removeChild(
-            link
-        );
-
-
-        URL.revokeObjectURL(
-            url
-        );
-
-    }
-);
+}
