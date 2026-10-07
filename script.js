@@ -44,6 +44,7 @@ let textoTraduzido = "";
 
 let slides = [];
 let slideAtual = 0;
+let idiomaAtivo = "pt";
 
 
 // =====================================
@@ -60,8 +61,200 @@ if (!btnTraduzir) {
 
 
 // =====================================
-// IDIOMAS DO CABEÇALHO
+// TRADUÇÃO DA INTERFACE
 // =====================================
+
+const textosInterface = {
+    pt: {
+        "nav.inicio": "Início",
+        "nav.traduzir": "Traduzir",
+        "nav.resultado": "Resultado",
+        "nav.sobre": "Sobre",
+        "hero.tag": "✨ Aprendizado sem fronteiras",
+        "hero.title.line1": "Traduza seus materiais",
+        "hero.title.line2": "de estudo",
+        "hero.description": "Transforme PDFs, documentos Word e apresentações em materiais traduzidos de forma simples, rápida e organizada.",
+        "hero.button": "Começar tradução",
+        "sectionTranslation.tag": "ÁREA DE TRADUÇÃO",
+        "sectionTranslation.title": "Traduza seu material",
+        "sectionTranslation.description": "Envie seu arquivo e configure a tradução de acordo com suas necessidades.",
+        "upload.title": "Carregar arquivo",
+        "upload.description": "Escolha o material que deseja traduzir.",
+        "upload.buttonLabel": "Escolher arquivo",
+        "upload.dragText": "Arraste seu arquivo ou clique aqui",
+        "upload.supportedFiles": "PDF, Word ou PowerPoint • Máx. 10MB",
+        "languages.title": "Idiomas",
+        "languages.description": "Selecione o idioma original e o idioma de destino.",
+        "languages.originLabel": "Idioma original",
+        "languages.targetLabel": "Traduzir para",
+        "mode.complete.title": "Tradução completa",
+        "mode.complete.description": "Traduz todo o conteúdo do arquivo.",
+        "mode.pages.title": "Tradução por páginas",
+        "mode.pages.description": "Traduz apenas as páginas selecionadas.",
+        "mode.chapters.title": "Tradução por capítulos",
+        "mode.chapters.description": "Traduz somente os capítulos selecionados.",
+        "button.translate": "Traduzir agora",
+        "message.default": "Selecione um arquivo e configure os idiomas para começar.",
+        "about.tag": "SOBRE O PROJETO",
+        "about.title": "Aprendizado sem fronteiras",
+        "about.description": "O Tradutor de Aulas foi desenvolvido para facilitar o acesso a materiais educacionais em diferentes idiomas, tornando o processo de aprendizagem mais simples e acessível.",
+        "about.benefit1": "Materiais educacionais",
+        "about.benefit2": "Vários idiomas",
+        "about.benefit3": "Processo simples",
+        "footer.brand": "🎓 Tradutor de Aulas",
+        "footer.tagline": "Aprendizado sem fronteiras",
+        "option.pt": "Português",
+        "option.en": "Inglês",
+        "option.es": "Espanhol",
+        "empty.file": "Nenhum arquivo selecionado",
+        "status.file.selected": "Arquivo selecionado"
+    },
+    en: {
+        "nav.inicio": "Home",
+        "nav.traduzir": "Translate",
+        "nav.resultado": "Result",
+        "nav.sobre": "About",
+        "hero.tag": "✨ Borderless learning",
+        "hero.title.line1": "Translate your study",
+        "hero.title.line2": "materials",
+        "hero.description": "Transform PDFs, Word documents and presentations into translated learning materials in a simple, fast and organized way.",
+        "hero.button": "Start translation",
+        "sectionTranslation.tag": "TRANSLATION AREA",
+        "sectionTranslation.title": "Translate your material",
+        "sectionTranslation.description": "Upload your file and configure the translation according to your needs.",
+        "upload.title": "Upload file",
+        "upload.description": "Choose the material you want to translate.",
+        "upload.buttonLabel": "Choose file",
+        "upload.dragText": "Drag and drop your file or click here",
+        "upload.supportedFiles": "PDF, Word or PowerPoint • Max. 10MB",
+        "languages.title": "Languages",
+        "languages.description": "Select the source language and the target language.",
+        "languages.originLabel": "Source language",
+        "languages.targetLabel": "Translate to",
+        "mode.complete.title": "Full translation",
+        "mode.complete.description": "Translates the entire file content.",
+        "mode.pages.title": "Page-by-page translation",
+        "mode.pages.description": "Translates only the selected pages.",
+        "mode.chapters.title": "Chapter-by-chapter translation",
+        "mode.chapters.description": "Translates only the selected chapters.",
+        "button.translate": "Translate now",
+        "message.default": "Select a file and configure the languages to get started.",
+        "about.tag": "ABOUT THE PROJECT",
+        "about.title": "Borderless learning",
+        "about.description": "The Tradutor de Aulas was developed to make educational materials more accessible across different languages, making the learning process simpler and more inclusive.",
+        "about.benefit1": "Educational materials",
+        "about.benefit2": "Multiple languages",
+        "about.benefit3": "Simple process",
+        "footer.brand": "🎓 Tradutor de Aulas",
+        "footer.tagline": "Borderless learning",
+        "option.pt": "Portuguese",
+        "option.en": "English",
+        "option.es": "Spanish",
+        "empty.file": "No file selected",
+        "status.file.selected": "File selected"
+    },
+    es: {
+        "nav.inicio": "Inicio",
+        "nav.traduzir": "Traducir",
+        "nav.resultado": "Resultado",
+        "nav.sobre": "Sobre",
+        "hero.tag": "✨ Aprendizaje sin fronteras",
+        "hero.title.line1": "Traduce tus materiales",
+        "hero.title.line2": "de estudio",
+        "hero.description": "Transforma PDFs, documentos de Word y presentaciones en materiales traducidos de forma simple, rápida y organizada.",
+        "hero.button": "Comenzar traducción",
+        "sectionTranslation.tag": "ÁREA DE TRADUCCIÓN",
+        "sectionTranslation.title": "Traduce tu material",
+        "sectionTranslation.description": "Sube tu archivo y configura la traducción según tus necesidades.",
+        "upload.title": "Cargar archivo",
+        "upload.description": "Elige el material que deseas traducir.",
+        "upload.buttonLabel": "Elegir archivo",
+        "upload.dragText": "Arrastra tu archivo o haz clic aquí",
+        "upload.supportedFiles": "PDF, Word o PowerPoint • Máx. 10MB",
+        "languages.title": "Idiomas",
+        "languages.description": "Selecciona el idioma de origen y el idioma de destino.",
+        "languages.originLabel": "Idioma de origen",
+        "languages.targetLabel": "Traducir a",
+        "mode.complete.title": "Traducción completa",
+        "mode.complete.description": "Traduce todo el contenido del archivo.",
+        "mode.pages.title": "Traducción por páginas",
+        "mode.pages.description": "Traduce solo las páginas seleccionadas.",
+        "mode.chapters.title": "Traducción por capítulos",
+        "mode.chapters.description": "Traduce solo los capítulos seleccionados.",
+        "button.translate": "Traducir ahora",
+        "message.default": "Selecciona un archivo y configura los idiomas para comenzar.",
+        "about.tag": "SOBRE EL PROYECTO",
+        "about.title": "Aprendizaje sin fronteras",
+        "about.description": "Tradutor de Aulas fue desarrollado para facilitar el acceso a materiales educativos en diferentes idiomas, haciendo que el proceso de aprendizaje sea más simple y accesible.",
+        "about.benefit1": "Materiales educativos",
+        "about.benefit2": "Varios idiomas",
+        "about.benefit3": "Proceso simple",
+        "footer.brand": "🎓 Tradutor de Aulas",
+        "footer.tagline": "Aprendizaje sin fronteras",
+        "option.pt": "Portugués",
+        "option.en": "Inglés",
+        "option.es": "Español",
+        "empty.file": "Ningún archivo seleccionado",
+        "status.file.selected": "Archivo seleccionado"
+    }
+};
+
+function getTextoInterface(lang, chave) {
+    return textosInterface[lang]?.[chave]
+        || textosInterface.pt[chave]
+        || chave;
+}
+
+function aplicarIdiomaInterface(lang = "pt") {
+    idiomaAtivo = lang;
+    document.documentElement.lang = lang;
+
+    document.querySelectorAll("[data-i18n]").forEach((elemento) => {
+        const chave = elemento.dataset.i18n;
+        const valor = getTextoInterface(lang, chave);
+
+        if (valor) {
+            elemento.textContent = valor;
+        }
+    });
+
+    const origem = document.getElementById("idiomaOrigem");
+    const destino = document.getElementById("idiomaDestino");
+
+    [
+        { select: origem, key: "option.pt", value: "pt" },
+        { select: origem, key: "option.en", value: "en" },
+        { select: origem, key: "option.es", value: "es" },
+        { select: destino, key: "option.pt", value: "pt" },
+        { select: destino, key: "option.en", value: "en" },
+        { select: destino, key: "option.es", value: "es" }
+    ].forEach(({ select, key, value }) => {
+        if (!select) {
+            return;
+        }
+
+        const option = select.querySelector(`option[value="${value}"]`);
+
+        if (option) {
+            option.textContent = getTextoInterface(lang, key);
+        }
+    });
+
+    const btnTraduzir = document.getElementById("btnTraduzir");
+
+    if (btnTraduzir) {
+        btnTraduzir.innerHTML =
+            '<span>✨</span>' +
+            getTextoInterface(lang, "button.translate") +
+            '<span>→</span>';
+    }
+
+    const mensagem = document.getElementById("mensagem");
+
+    if (mensagem && mensagem.dataset.i18n === "message.default") {
+        mensagem.textContent = getTextoInterface(lang, "message.default");
+    }
+}
 
 const botoesIdioma = document.querySelectorAll(
     ".idioma-selector button"
@@ -77,13 +270,12 @@ botoesIdioma.forEach((botao) => {
 
         botao.classList.add("active");
 
-        console.log(
-            "Idioma da interface:",
-            botao.dataset.lang
-        );
+        aplicarIdiomaInterface(botao.dataset.lang || "pt");
     });
 
 });
+
+aplicarIdiomaInterface("pt");
 
 
 // =====================================
@@ -99,7 +291,7 @@ if (arquivoInput) {
         if (!arquivoAtual) {
 
             arquivoSelecionado.textContent =
-                "Nenhum arquivo selecionado.";
+                getTextoInterface(idiomaAtivo, "empty.file");
 
             return;
         }
@@ -134,8 +326,15 @@ if (arquivoInput) {
         arquivoSelecionado.innerHTML =
             `📄 <strong>${escaparHTML(arquivoAtual.name)}</strong>`;
 
+        const uploadArea =
+            document.querySelector(".upload-area");
+
+        if (uploadArea) {
+            uploadArea.classList.add("is-filled");
+        }
+
         mostrarMensagem(
-            "✅ Arquivo selecionado."
+            "✅ " + getTextoInterface(idiomaAtivo, "status.file.selected") + "."
         );
 
     });
@@ -307,8 +506,10 @@ if (btnTraduzir) {
 
                 btnTraduzir.disabled = false;
 
-                btnTraduzir.textContent =
-                    "🔄 Preparar tradução";
+                btnTraduzir.innerHTML =
+                    '<span>✨</span>' +
+                    getTextoInterface(idiomaAtivo, "button.translate") +
+                    '<span>→</span>';
 
             }
 
@@ -321,6 +522,119 @@ if (btnTraduzir) {
 // =====================================
 // TRADUÇÃO COM LIBRETRANSLATE
 // =====================================
+
+async function traduzirTextoComFallback(
+    texto,
+    origem,
+    destino
+) {
+
+    const tentativas = [
+
+        async () => {
+
+            const resposta =
+                await fetch(
+                    "http://127.0.0.1:5000/translate",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type":
+                                "application/x-www-form-urlencoded"
+                        },
+                        body:
+                            new URLSearchParams({
+                                q: texto,
+                                source: origem,
+                                target: destino,
+                                format: "text"
+                            }).toString()
+                    }
+                );
+
+            if (!resposta.ok) {
+                throw new Error(
+                    `Erro do LibreTranslate. Código: ${resposta.status}`
+                );
+            }
+
+            const resultadoAPI =
+                await resposta.json();
+
+            if (resultadoAPI.error) {
+                throw new Error(
+                    resultadoAPI.error
+                );
+            }
+
+            if (!resultadoAPI.translatedText) {
+                throw new Error(
+                    "O LibreTranslate não retornou a tradução."
+                );
+            }
+
+            return resultadoAPI.translatedText;
+
+        },
+
+        async () => {
+
+            const url =
+                `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${origem}&tl=${destino}&dt=t&ie=UTF-8&oe=UTF-8&q=${encodeURIComponent(texto)}`;
+
+            const resposta =
+                await fetch(url);
+
+            if (!resposta.ok) {
+                throw new Error(
+                    `Erro do Google Translate. Código: ${resposta.status}`
+                );
+            }
+
+            const resultadoAPI =
+                await resposta.json();
+
+            if (
+                !Array.isArray(resultadoAPI) ||
+                !Array.isArray(resultadoAPI[0])
+            ) {
+                throw new Error(
+                    "Resposta inválida do Google Translate."
+                );
+            }
+
+            return resultadoAPI[0]
+                .map((item) => item[0] || "")
+                .join("");
+
+        }
+
+    ];
+
+    let ultimoErro = null;
+
+    for (const tentar of tentativas) {
+
+        try {
+
+            return await tentar();
+
+        }
+
+        catch (erro) {
+
+            ultimoErro = erro;
+
+        }
+
+    }
+
+    throw new Error(
+        ultimoErro?.message ||
+        "Não foi possível traduzir o texto."
+    );
+
+}
 
 async function traduzirTexto(
     texto,
@@ -539,25 +853,16 @@ async function traduzirTexto(
             );
 
 
-            let resposta;
+            let textoTraduzidoParcial;
 
 
             try {
 
-                resposta =
-                    await fetch(
-                        "http://127.0.0.1:5000/translate",
-                        {
-                            method: "POST",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/x-www-form-urlencoded"
-                            },
-
-                            body:
-                                dados.toString()
-                        }
+                textoTraduzidoParcial =
+                    await traduzirTextoComFallback(
+                        partes[j],
+                        origem,
+                        destino
                     );
 
             }
@@ -565,60 +870,14 @@ async function traduzirTexto(
             catch (erro) {
 
                 throw new Error(
-                    "Não foi possível conectar ao LibreTranslate. Verifique se ele está rodando em http://127.0.0.1:5000."
-                );
-
-            }
-
-
-            if (!resposta.ok) {
-
-                throw new Error(
-                    `Erro do LibreTranslate. Código: ${resposta.status}`
-                );
-
-            }
-
-
-            let resultadoAPI;
-
-
-            try {
-
-                resultadoAPI =
-                    await resposta.json();
-
-            }
-
-            catch (erro) {
-
-                throw new Error(
-                    "O LibreTranslate retornou uma resposta inválida."
-                );
-
-            }
-
-
-            if (resultadoAPI.error) {
-
-                throw new Error(
-                    resultadoAPI.error
-                );
-
-            }
-
-
-            if (!resultadoAPI.translatedText) {
-
-                throw new Error(
-                    "O LibreTranslate não retornou a tradução."
+                    "Não foi possível realizar a tradução. Verifique a conexão e o serviço de idioma."
                 );
 
             }
 
 
             partesTraduzidas.push(
-                resultadoAPI.translatedText
+                textoTraduzidoParcial
             );
 
         }
@@ -958,18 +1217,27 @@ function mostrarResultado() {
     }
 
 
-    const modo =
-        document.getElementById(
-            "tipoTraducao"
+    const modoSelecionado =
+        document.querySelector(
+            'input[name="modo"]:checked'
         );
 
 
-    if (modo && modoResultado) {
+    if (modoResultado) {
+
+        const opcaoSelecionada =
+            modoSelecionado?.closest(".opcao");
+
+        const textoModo =
+            opcaoSelecionada
+                ?.querySelector("strong")
+                ?.textContent
+                ?.trim() ||
+            modoSelecionado?.value ||
+            "Tradução completa";
 
         modoResultado.textContent =
-            modo.options[
-                modo.selectedIndex
-            ].text;
+            textoModo;
 
     }
 
@@ -1401,8 +1669,15 @@ if (btnNovo) {
             if (arquivoSelecionado) {
 
                 arquivoSelecionado.textContent =
-                    "Nenhum arquivo selecionado.";
+                    getTextoInterface(idiomaAtivo, "empty.file");
 
+            }
+
+            const uploadArea =
+                document.querySelector(".upload-area");
+
+            if (uploadArea) {
+                uploadArea.classList.remove("is-filled");
             }
 
 

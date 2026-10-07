@@ -35,10 +35,10 @@
 
             <nav class="menu">
 
-                <a href="#inicio">Início</a>
-                <a href="#tradutor">Traduzir</a>
-                <a href="#resultado">Resultado</a>
-                <a href="#sobre">Sobre</a>
+                <a href="#inicio" data-i18n="nav.inicio">Início</a>
+                <a href="#tradutor" data-i18n="nav.traduzir">Traduzir</a>
+                <a href="#resultado" data-i18n="nav.resultado">Resultado</a>
+                <a href="#sobre" data-i18n="nav.sobre">Sobre</a>
 
             </nav>
 
@@ -73,22 +73,22 @@
 
             <div class="hero-texto">
 
-                <span class="hero-tag">
+                <span class="hero-tag" data-i18n="hero.tag">
                     ✨ Aprendizado sem fronteiras
                 </span>
 
                 <h1>
-                    Traduza seus materiais
-                    <strong>de estudo</strong>
+                    <span data-i18n="hero.title.line1">Traduza seus materiais</span>
+                    <strong data-i18n="hero.title.line2">de estudo</strong>
                 </h1>
 
-                <p>
+                <p data-i18n="hero.description">
                     Transforme PDFs, documentos Word e apresentações
                     em materiais traduzidos de forma simples, rápida
                     e organizada.
                 </p>
 
-                <a href="#tradutor" class="btn-hero">
+                <a href="#tradutor" class="btn-hero" data-i18n="hero.button">
                     Começar tradução
                     <span>→</span>
                 </a>
@@ -145,15 +145,15 @@
 
         <div class="titulo-secao">
 
-            <span class="titulo-tag">
+            <span class="titulo-tag" data-i18n="sectionTranslation.tag">
                 ÁREA DE TRADUÇÃO
             </span>
 
-            <h2>
+            <h2 data-i18n="sectionTranslation.title">
                 Traduza seu material
             </h2>
 
-            <p>
+            <p data-i18n="sectionTranslation.description">
                 Envie seu arquivo e configure a tradução
                 de acordo com suas necessidades.
             </p>
@@ -182,11 +182,11 @@
 
                     <div>
 
-                        <h3>
+                        <h3 data-i18n="upload.title">
                             Carregar arquivo
                         </h3>
 
-                        <p>
+                        <p data-i18n="upload.description">
                             Escolha o material que deseja traduzir.
                         </p>
 
@@ -204,15 +204,15 @@
                         ☁️
                     </div>
 
-                    <strong>
+                    <strong data-i18n="upload.buttonLabel">
                         Escolher arquivo
                     </strong>
 
-                    <span>
+                    <span data-i18n="upload.dragText">
                         Arraste seu arquivo ou clique aqui
                     </span>
 
-                    <small>
+                    <small data-i18n="upload.supportedFiles">
                         PDF, Word ou PowerPoint • Máx. 10MB
                     </small>
 
@@ -253,11 +253,11 @@
 
                     <div>
 
-                        <h3>
+                        <h3 data-i18n="languages.title">
                             Idiomas
                         </h3>
 
-                        <p>
+                        <p data-i18n="languages.description">
                             Selecione o idioma original e o idioma de destino.
                         </p>
 
@@ -270,7 +270,7 @@
 
                     <div class="campo">
 
-                        <label for="idiomaOrigem">
+                        <label for="idiomaOrigem" data-i18n="languages.originLabel">
                             Idioma original
                         </label>
 
@@ -306,7 +306,7 @@
 
                     <div class="campo">
 
-                        <label for="idiomaDestino">
+                        <label for="idiomaDestino" data-i18n="languages.targetLabel">
                             Traduzir para
                         </label>
 
@@ -385,11 +385,11 @@
 
                         <div>
 
-                            <strong>
+                            <strong data-i18n="mode.complete.title">
                                 Tradução completa
                             </strong>
 
-                            <small>
+                            <small data-i18n="mode.complete.description">
                                 Traduz todo o conteúdo do arquivo.
                             </small>
 
@@ -410,11 +410,11 @@
 
                         <div>
 
-                            <strong>
+                            <strong data-i18n="mode.pages.title">
                                 Tradução por páginas
                             </strong>
 
-                            <small>
+                            <small data-i18n="mode.pages.description">
                                 Traduz apenas as páginas selecionadas.
                             </small>
 
@@ -435,11 +435,11 @@
 
                         <div>
 
-                            <strong>
+                            <strong data-i18n="mode.chapters.title">
                                 Tradução por capítulos
                             </strong>
 
-                            <small>
+                            <small data-i18n="mode.chapters.description">
                                 Traduz somente os capítulos selecionados.
                             </small>
 
@@ -459,6 +459,7 @@
             <button
                 id="btnTraduzir"
                 class="btn-traduzir"
+                data-i18n="button.translate"
             >
 
                 <span>✨</span>
@@ -477,6 +478,7 @@
             <div
                 id="mensagem"
                 class="mensagem"
+                data-i18n="message.default"
             >
                 Selecione um arquivo e configure os idiomas para começar.
             </div>
@@ -663,15 +665,15 @@
 
         <div class="sobre-conteudo">
 
-            <span class="titulo-tag">
+            <span class="titulo-tag" data-i18n="about.tag">
                 SOBRE O PROJETO
             </span>
 
-            <h2>
+            <h2 data-i18n="about.title">
                 Aprendizado sem fronteiras
             </h2>
 
-            <p>
+            <p data-i18n="about.description">
                 O Tradutor de Aulas foi desenvolvido para
                 facilitar o acesso a materiais educacionais
                 em diferentes idiomas, tornando o processo
@@ -682,17 +684,17 @@
 
                 <div>
                     <strong>📚</strong>
-                    <span>Materiais educacionais</span>
+                    <span data-i18n="about.benefit1">Materiais educacionais</span>
                 </div>
 
                 <div>
                     <strong>🌎</strong>
-                    <span>Vários idiomas</span>
+                    <span data-i18n="about.benefit2">Vários idiomas</span>
                 </div>
 
                 <div>
                     <strong>⚡</strong>
-                    <span>Processo simples</span>
+                    <span data-i18n="about.benefit3">Processo simples</span>
                 </div>
 
             </div>
@@ -710,13 +712,13 @@
 
         <div class="footer-conteudo">
 
-            <strong>
+            <strong data-i18n="footer.brand">
                 🎓 Tradutor de Aulas
             </strong>
 
             <span>•</span>
 
-            <span>
+            <span data-i18n="footer.tagline">
                 Aprendizado sem fronteiras
             </span>
 
