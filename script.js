@@ -523,6 +523,32 @@ if (btnTraduzir) {
 // TRADUÇÃO COM LIBRETRANSLATE
 // =====================================
 
+function normalizarCodigoIdioma(codigo) {
+
+    const mapa = {
+        "pt": "pt",
+        "pt-br": "pt",
+        "portugues": "pt",
+        "portuguese": "pt",
+        "en": "en",
+        "eng": "en",
+        "english": "en",
+        "es": "es",
+        "esp": "es",
+        "espanhol": "es",
+        "spanish": "es"
+    };
+
+    return mapa[
+        String(codigo || "")
+            .trim()
+            .toLowerCase()
+    ] || String(codigo || "")
+        .trim()
+        .toLowerCase();
+
+}
+
 async function traduzirTextoComFallback(
     texto,
     origem,
@@ -641,6 +667,9 @@ async function traduzirTexto(
     origem,
     destino
 ) {
+
+    origem = normalizarCodigoIdioma(origem);
+    destino = normalizarCodigoIdioma(destino);
 
     // =====================================
     // MESMO IDIOMA
