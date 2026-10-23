@@ -1,4 +1,4 @@
-// =====================================
+﻿// =====================================
 // ELEMENTOS DO SITE
 // =====================================
 
@@ -14,247 +14,176 @@ const idiomaResultado = document.getElementById("idiomaResultado");
 const modoResultado = document.getElementById("modoResultado");
 
 const visualizacao = document.getElementById("visualizacao");
-
 const btnBaixar = document.getElementById("btnBaixar");
 const btnNovo = document.getElementById("btnNovo");
-
-// Elementos dos slides
-const slideNumero = document.getElementById("slideNumero");
-const slideTitulo = document.getElementById("slideTitulo");
-const slideConteudo = document.getElementById("slideConteudo");
-const contadorSlide = document.getElementById("contadorSlide");
-const slideAnterior = document.getElementById("slideAnterior");
-const slideProximo = document.getElementById("slideProximo");
+const btnAnterior = document.getElementById("btnAnterior");
+const btnProximo = document.getElementById("btnProximo");
+const contadorSlides = document.getElementById("contadorSlides");
 
 // =====================================
 // VARIÁVEIS
 // =====================================
 
 let arquivoAtual = null;
-let textoExtraido = "";
-let textoTraduzido = "";
 let slides = [];
 let slideAtual = 0;
 let idiomaAtivo = "pt";
 
-// =====================================
-// TRADUÇÃO DA INTERFACE
-// =====================================
-
-const textosInterface = {
-    pt: {
-        "nav.inicio": "Início",
-        "nav.traduzir": "Traduzir",
-        "nav.resultado": "Resultado",
-        "nav.sobre": "Sobre",
-        "hero.tag": "✨ Aprendizado sem fronteiras",
-        "hero.title.line1": "Traduza seus materiais",
-        "hero.title.line2": "de estudo",
-        "hero.description": "Transforme PDFs, documentos Word e apresentações em materiais traduzidos de forma simples, rápida e organizada.",
-        "hero.button": "Começar tradução",
-        "sectionTranslation.tag": "ÁREA DE TRADUÇÃO",
-        "sectionTranslation.title": "Traduza seu material",
-        "sectionTranslation.description": "Envie seu arquivo e configure a tradução de acordo com suas necessidades.",
-        "upload.title": "Carregar arquivo",
-        "upload.description": "Escolha o material que deseja traduzir.",
-        "upload.buttonLabel": "Escolher arquivo",
-        "upload.dragText": "Arraste seu arquivo ou clique aqui",
-        "upload.supportedFiles": "PDF, Word ou PowerPoint • Máx. 10MB",
-        "languages.title": "Idiomas",
-        "languages.description": "Selecione o idioma original e o idioma de destino.",
-        "languages.originLabel": "Idioma original",
-        "languages.targetLabel": "Traduzir para",
-        "mode.complete.title": "Tradução completa",
-        "mode.complete.description": "Traduz todo o conteúdo do arquivo.",
-        "mode.pages.title": "Tradução por páginas",
-        "mode.pages.description": "Traduz apenas as páginas selecionadas.",
-        "mode.chapters.title": "Tradução por capítulos",
-        "mode.chapters.description": "Traduz somente os capítulos selecionados.",
-        "button.translate": "Traduzir agora",
-        "message.default": "Selecione um arquivo e configure os idiomas para começar.",
-        "about.tag": "SOBRE O PROJETO",
-        "about.title": "Aprendizado sem fronteiras",
-        "about.description": "O Tradutor de Aulas foi desenvolvido para facilitar o acesso a materiais educacionais em diferentes idiomas, tornando o processo de aprendizagem mais simples e acessível.",
-        "about.benefit1": "Materiais educacionais",
-        "about.benefit2": "Vários idiomas",
-        "about.benefit3": "Processo simples",
-        "footer.brand": "🎓 Tradutor de Aulas",
-        "footer.tagline": "Aprendizado sem fronteiras",
-        "option.pt": "Português",
-        "option.en": "Inglês",
-        "option.es": "Espanhol",
-        "empty.file": "Nenhum arquivo selecionado",
-        "status.file.selected": "Arquivo selecionado"
-    },
-
-    en: {
-        "nav.inicio": "Home",
-        "nav.traduzir": "Translate",
-        "nav.resultado": "Result",
-        "nav.sobre": "About",
-        "hero.tag": "✨ Borderless learning",
-        "hero.title.line1": "Translate your study",
-        "hero.title.line2": "materials",
-        "hero.description": "Transform PDFs, Word documents and presentations into translated learning materials in a simple, fast and organized way.",
-        "hero.button": "Start translation",
-        "sectionTranslation.tag": "TRANSLATION AREA",
-        "sectionTranslation.title": "Translate your material",
-        "sectionTranslation.description": "Upload your file and configure the translation according to your needs.",
-        "upload.title": "Upload file",
-        "upload.description": "Choose the file you want to translate.",
-        "upload.buttonLabel": "Choose file",
-        "upload.dragText": "Drag and drop your file or click here",
-        "upload.supportedFiles": "PDF, Word or PowerPoint • Max. 10MB",
-        "languages.title": "Languages",
-        "languages.description": "Select the source language and the target language.",
-        "languages.originLabel": "Source language",
-        "languages.targetLabel": "Translate to",
-        "mode.complete.title": "Full translation",
-        "mode.complete.description": "Translates the entire file.",
-        "mode.pages.title": "Page-by-page translation",
-        "mode.pages.description": "Translates only selected pages.",
-        "mode.chapters.title": "Chapter-by-chapter translation",
-        "mode.chapters.description": "Translates only selected chapters.",
-        "button.translate": "Translate now",
-        "message.default": "Select a file and configure the languages to get started.",
-        "about.tag": "ABOUT THE PROJECT",
-        "about.title": "Borderless learning",
-        "about.description": "Tradutor de Aulas was developed to make educational materials more accessible across different languages.",
-        "about.benefit1": "Educational materials",
-        "about.benefit2": "Multiple languages",
-        "about.benefit3": "Simple process",
-        "footer.brand": "🎓 Tradutor de Aulas",
-        "footer.tagline": "Borderless learning",
-        "option.pt": "Portuguese",
-        "option.en": "English",
-        "option.es": "Spanish",
-        "empty.file": "No file selected",
-        "status.file.selected": "File selected"
-    },
-
-    es: {
-        "nav.inicio": "Inicio",
-        "nav.traduzir": "Traducir",
-        "nav.resultado": "Resultado",
-        "nav.sobre": "Sobre",
-        "hero.tag": "✨ Aprendizaje sin fronteras",
-        "hero.title.line1": "Traduce tus materiales",
-        "hero.title.line2": "de estudio",
-        "hero.description": "Transforma PDFs, documentos de Word y presentaciones en materiales traducidos de forma simple, rápida y organizada.",
-        "hero.button": "Comenzar traducción",
-        "sectionTranslation.tag": "ÁREA DE TRADUCCIÓN",
-        "sectionTranslation.title": "Traduce tu material",
-        "sectionTranslation.description": "Sube tu archivo y configura la traducción según tus necesidades.",
-        "upload.title": "Cargar archivo",
-        "upload.description": "Elige el material que deseas traducir.",
-        "upload.buttonLabel": "Elegir archivo",
-        "upload.dragText": "Arrastra tu archivo o haz clic aquí",
-        "upload.supportedFiles": "PDF, Word o PowerPoint • Máx. 10MB",
-        "languages.title": "Idiomas",
-        "languages.description": "Selecciona el idioma de origen y el idioma de destino.",
-        "languages.originLabel": "Idioma de origen",
-        "languages.targetLabel": "Traducir a",
-        "mode.complete.title": "Traducción completa",
-        "mode.complete.description": "Traduce todo el contenido del archivo.",
-        "mode.pages.title": "Traducción por páginas",
-        "mode.pages.description": "Traduce solo las páginas seleccionadas.",
-        "mode.chapters.title": "Traducción por capítulos",
-        "mode.chapters.description": "Traduce solo los capítulos seleccionados.",
-        "button.translate": "Traducir ahora",
-        "message.default": "Selecciona un archivo y configura los idiomas para comenzar.",
-        "about.tag": "SOBRE EL PROYECTO",
-        "about.title": "Aprendizaje sin fronteras",
-        "about.description": "Tradutor de Aulas fue desarrollado para facilitar el acceso a materiales educativos en diferentes idiomas.",
-        "about.benefit1": "Materiales educativos",
-        "about.benefit2": "Varios idiomas",
-        "about.benefit3": "Proceso simple",
-        "footer.brand": "🎓 Tradutor de Aulas",
-        "footer.tagline": "Aprendizaje sin fronteras",
-        "option.pt": "Portugués",
-        "option.en": "Inglés",
-        "option.es": "Español",
-        "empty.file": "Ningún archivo seleccionado",
-        "status.file.selected": "Archivo seleccionado"
-    }
+const idiomaMap = {
+    pt: "Português",
+    en: "Inglês",
+    es: "Espanhol"
 };
 
-// =====================================
-// IDIOMA DA INTERFACE
-// =====================================
-
-function getTextoInterface(lang, chave) {
-    return textosInterface[lang]?.[chave]
-        || textosInterface.pt[chave]
-        || chave;
+function escapeHtml(value = "") {
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
-function aplicarIdiomaInterface(lang = "pt") {
-    idiomaAtivo = lang;
-    document.documentElement.lang = lang;
+function mostrarMensagem(texto, erro = false) {
+    if (!mensagem) return;
+    mensagem.textContent = texto;
+    mensagem.style.background = erro ? "rgba(190, 60, 60, 0.08)" : "rgba(18, 115, 89, 0.06)";
+    mensagem.style.color = erro ? "#7d2b2b" : "#245d5c";
+}
 
-    document.querySelectorAll("[data-i18n]").forEach((elemento) => {
-        const chave = elemento.dataset.i18n;
-        const valor = getTextoInterface(lang, chave);
-
-        if (valor) {
-            elemento.textContent = valor;
+function renderSlidePreview(index = 0) {
+    if (!slides.length || !visualizacao) {
+        if (visualizacao) {
+            visualizacao.innerHTML = "O conteúdo do arquivo aparecerá aqui.";
         }
-    });
-
-    const origem = document.getElementById("idiomaOrigem");
-    const destino = document.getElementById("idiomaDestino");
-
-    [
-        { select: origem, key: "option.pt", value: "pt" },
-        { select: origem, key: "option.en", value: "en" },
-        { select: origem, key: "option.es", value: "es" },
-        { select: destino, key: "option.pt", value: "pt" },
-        { select: destino, key: "option.en", value: "en" },
-        { select: destino, key: "option.es", value: "es" }
-    ].forEach(({ select, key, value }) => {
-        if (!select) return;
-
-        const option = select.querySelector(
-            `option[value="${value}"]`
-        );
-
-        if (option) {
-            option.textContent = getTextoInterface(lang, key);
+        if (contadorSlides) {
+            contadorSlides.textContent = "1 / 1";
         }
-    });
-
-    const botao = document.getElementById("btnTraduzir");
-
-    if (botao) {
-        botao.innerHTML =
-            "<span>✨</span>" +
-            getTextoInterface(lang, "button.translate") +
-            "<span>→</span>";
+        return;
     }
 
-    const mensagemAtual = document.getElementById("mensagem");
+    const slide = slides[index] || slides[0];
+    const pageTitle = slide.page_title || `Página ${index + 1}`;
+    const documentTitle = slide.title || "Material traduzido";
+    const subtitle = slide.subtitle || "";
+    const blocks = slide.blocks || [];
 
-    if (
-        mensagemAtual &&
-        mensagemAtual.dataset.i18n === "message.default"
-    ) {
-        mensagemAtual.textContent =
-            getTextoInterface(lang, "message.default");
+    const itensHtml = blocks.map((block) => {
+        const text = escapeHtml(block && block.text ? block.text : "");
+        if (!text) return "";
+
+        const type = block.type || "paragraph";
+        const isListItem = type === "list-item" || /^(?:[a-zA-Z]|\d+)[\).]/.test(text.trim());
+
+        if (isListItem) {
+            const headingMatch = text.match(/^([^:]{0,80})[:\-]?\s*(.*)$/);
+            const heading = headingMatch ? escapeHtml(headingMatch[1].trim()) : "";
+            const content = headingMatch ? escapeHtml(headingMatch[2].trim()) : "";
+
+            if (content) {
+                return `
+                    <div class="slide-item">
+                        <strong>${heading || text}</strong>
+                        <p>${content}</p>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="slide-item">
+                    <strong>${text}</strong>
+                </div>
+            `;
+        }
+
+        return `<p class="slide-question">${text}</p>`;
+    }).join("");
+
+    visualizacao.innerHTML = `
+        <div class="slide-preview">
+            <header class="slide-header">
+                <div class="logo-box">
+                    <span class="logo-icone">🎓</span>
+                    <span class="logo-texto">Tradutor de Aulas</span>
+                </div>
+                <p class="subtitulo">Seu material traduzido e organizado</p>
+            </header>
+
+            <main class="slide-content">
+                <div class="slide-title-row">
+                    <div class="slide-title-wrap">
+                        <div class="slide-icon">📄</div>
+                        <h1>${escapeHtml(documentTitle)}</h1>
+                    </div>
+                    <span class="slide-badge">Traduzido</span>
+                </div>
+
+                <div class="slide-meta">${escapeHtml((slide.formato || "PDF") + " • " + (slide.source_lang || "pt") + " → " + (slide.target_lang || "es"))}</div>
+                <div class="slide-divider"></div>
+
+                <section class="slide-body">
+                    <h2>${escapeHtml(pageTitle)}</h2>
+                    ${subtitle ? `<h3>${escapeHtml(subtitle)}</h3>` : ""}
+
+                    <div class="slide-panel">
+                        ${itensHtml}
+                    </div>
+                </section>
+            </main>
+        </div>
+    `;
+
+    if (contadorSlides) {
+        contadorSlides.textContent = `${index + 1} / ${slides.length}`;
+    }
+
+    if (btnAnterior) {
+        btnAnterior.disabled = index === 0;
+    }
+
+    if (btnProximo) {
+        btnProximo.disabled = index >= slides.length - 1;
     }
 }
 
-document.querySelectorAll(".idioma-selector button").forEach((botao) => {
-    botao.addEventListener("click", () => {
-        document.querySelectorAll(".idioma-selector button").forEach((item) => {
-            item.classList.remove("active");
-        });
+function atualizarResumoArquivo(fileName, origem, destino, modoTexto) {
+    if (nomeResultado) {
+        nomeResultado.textContent = fileName || "-";
+    }
 
-        botao.classList.add("active");
-        aplicarIdiomaInterface(botao.dataset.lang || "pt");
-    });
-});
+    if (formatoResultado) {
+        const extensao = fileName ? fileName.split('.').pop().toUpperCase() : "-";
+        formatoResultado.textContent = extensao === "-" ? "-" : extensao;
+    }
 
-aplicarIdiomaInterface("pt");
+    if (idiomaResultado) {
+        idiomaResultado.textContent = `${idiomaMap[origem] || origem} → ${idiomaMap[destino] || destino}`;
+    }
+
+    if (modoResultado) {
+        modoResultado.textContent = modoTexto || "Tradução completa";
+    }
+}
+
+function montarResultado(payload) {
+    const arquivo = arquivoInput && arquivoInput.files[0];
+    const origem = document.getElementById("idiomaOrigem")?.value || "pt";
+    const destino = document.getElementById("idiomaDestino")?.value || "en";
+    const modoSelecionado = document.querySelector('input[name="modo"]:checked');
+
+    const modoTexto = modoSelecionado ? modoSelecionado.parentElement.querySelector("strong").textContent : "Tradução completa";
+    atualizarResumoArquivo(arquivo ? arquivo.name : payload?.filename || "-", origem, destino, modoTexto);
+
+    slides = Array.isArray(payload?.pages) ? payload.pages.map((page) => ({
+        ...page,
+        formato: (arquivo ? arquivo.name : payload?.filename || "arquivo").split('.').pop().toUpperCase(),
+        source_lang: payload?.source_lang || origem,
+        target_lang: payload?.target_lang || destino,
+    })) : [];
+
+    slideAtual = 0;
+    renderSlidePreview(slideAtual);
+}
 
 // =====================================
 // SELEÇÃO DO ARQUIVO
@@ -266,8 +195,7 @@ if (arquivoInput) {
 
         if (!arquivoAtual) {
             if (arquivoSelecionado) {
-                arquivoSelecionado.textContent =
-                    getTextoInterface(idiomaAtivo, "empty.file");
+                arquivoSelecionado.innerHTML = '<span>📄</span> Nenhum arquivo selecionado';
             }
             return;
         }
@@ -281,31 +209,23 @@ if (arquivoInput) {
 
         if (!formatosPermitidos.includes(extensao)) {
             if (arquivoSelecionado) {
-                arquivoSelecionado.textContent =
-                    "❌ Formato não permitido.";
+                arquivoSelecionado.innerHTML = '<span>📄</span> Formato não permitido';
             }
-
             arquivoAtual = null;
             this.value = "";
             return;
         }
 
         if (arquivoSelecionado) {
-            arquivoSelecionado.innerHTML =
-                `📄 <strong>${escaparHTML(arquivoAtual.name)}</strong>`;
+            arquivoSelecionado.innerHTML = `📄 <strong>${escapeHtml(arquivoAtual.name)}</strong>`;
         }
 
         const uploadArea = document.querySelector(".upload-area");
-
         if (uploadArea) {
             uploadArea.classList.add("is-filled");
         }
 
-        mostrarMensagem(
-            "✅ " +
-            getTextoInterface(idiomaAtivo, "status.file.selected") +
-            "."
-        );
+        mostrarMensagem("✅ Arquivo selecionado.");
     });
 }
 
@@ -315,71 +235,110 @@ if (arquivoInput) {
 
 if (btnTraduzir) {
     btnTraduzir.addEventListener("click", async function () {
-        if (!arquivoAtual) {
+        if (!arquivoInput || !arquivoInput.files.length) {
             mostrarMensagem("⚠️ Primeiro selecione um arquivo.", true);
             return;
         }
 
-        const origemElement = document.getElementById("idiomaOrigem");
-        const destinoElement = document.getElementById("idiomaDestino");
-
-        if (!origemElement || !destinoElement) {
-            mostrarMensagem("❌ Campos de idioma não encontrados.", true);
-            return;
-        }
-
-        const origem = origemElement.value;
-        const destino = destinoElement.value;
+        const origem = document.getElementById("idiomaOrigem")?.value || "pt";
+        const destino = document.getElementById("idiomaDestino")?.value || "en";
 
         btnTraduzir.disabled = true;
-        btnTraduzir.textContent = "⏳ Processando...";
+        btnTraduzir.innerHTML = "<span>⏳</span> Processando...";
 
         try {
-            const extensao = arquivoAtual.name
-                .split(".")
-                .pop()
-                .toLowerCase();
+            const formData = new FormData();
+            formData.append("file", arquivoInput.files[0]);
+            formData.append("source_lang", origem);
+            formData.append("target_lang", destino);
 
-            mostrarMensagem("📖 Lendo o material...");
+            const response = await fetch("/api/translate", {
+                method: "POST",
+                body: formData
+            });
 
-            if (extensao === "pdf") {
-                textoExtraido = await lerPDF(arquivoAtual);
-            } else if (extensao === "docx") {
-                textoExtraido = await lerWord(arquivoAtual);
-            } else if (extensao === "pptx") {
-                textoExtraido = await lerPowerPoint(arquivoAtual);
-            } else {
-                throw new Error("Formato de arquivo não suportado.");
+            const payload = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                throw new Error(payload.error || "Não foi possível concluir a tradução.");
             }
 
-            if (!textoExtraido || !textoExtraido.trim()) {
-                throw new Error("Não foi encontrado texto no arquivo.");
+            if (!payload.pages || !payload.pages.length) {
+                throw new Error("Nenhuma página foi gerada na tradução.");
             }
 
-            mostrarMensagem("🌐 Traduzindo o conteúdo...");
-
-            textoTraduzido = await traduzirTexto(
-                textoExtraido,
-                origem,
-                destino
-            );
-
-            if (!textoTraduzido || !textoTraduzido.trim()) {
-                throw new Error("A tradução não retornou nenhum texto.");
-            }
-
-            mostrarResultado(arquivoAtual, origem, destino, textoTraduzido);
+            montarResultado(payload);
             mostrarMensagem("✅ Tradução concluída!");
 
+            if (resultado) {
+                resultado.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
         } catch (erro) {
             console.error("Erro na tradução:", erro);
-            mostrarMensagem(
-                "❌ Não foi possível concluir: " + erro.message,
-                true
-            );
+            mostrarMensagem(`❌ ${erro.message || "Não foi possível concluir a tradução."}`, true);
         } finally {
             btnTraduzir.disabled = false;
-            aplicarIdiomaInterface(idiomaAtivo);
+            btnTraduzir.innerHTML = '<span>✨</span> Traduzir agora <span>→</span>';
         }
     });
 }
+
+if (btnAnterior) {
+    btnAnterior.addEventListener("click", () => {
+        if (!slides.length) return;
+        slideAtual = Math.max(0, slideAtual - 1);
+        renderSlidePreview(slideAtual);
+    });
+}
+
+if (btnProximo) {
+    btnProximo.addEventListener("click", () => {
+        if (!slides.length) return;
+        slideAtual = Math.min(slides.length - 1, slideAtual + 1);
+        renderSlidePreview(slideAtual);
+    });
+}
+
+if (btnNovo) {
+    btnNovo.addEventListener("click", () => {
+        if (arquivoInput) arquivoInput.value = "";
+        if (arquivoSelecionado) arquivoSelecionado.innerHTML = '<span>📄</span> Nenhum arquivo selecionado';
+        if (mensagem) mensagem.textContent = "Selecione um arquivo e configure os idiomas para começar.";
+
+        slides = [];
+        slideAtual = 0;
+        renderSlidePreview(0);
+
+        if (nomeResultado) nomeResultado.textContent = "-";
+        if (formatoResultado) formatoResultado.textContent = "-";
+        if (idiomaResultado) idiomaResultado.textContent = "-";
+        if (modoResultado) modoResultado.textContent = "-";
+        if (contadorSlides) contadorSlides.textContent = "1 / 1";
+    });
+}
+
+if (btnBaixar) {
+    btnBaixar.addEventListener("click", () => {
+        if (!slides.length) {
+            mostrarMensagem("⚠️ Traduza um arquivo antes de baixar o conteúdo.", true);
+            return;
+        }
+
+        const texto = slides.map((slide) => {
+            const parts = [slide.page_title || '', slide.subtitle || '', ...(slide.blocks || []).map((block) => block.text || '')].filter(Boolean);
+            return parts.join('\n\n');
+        }).join('\n\n');
+
+        const blob = new Blob([texto], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "tradução.txt";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+    });
+}
+
+renderSlidePreview(0);

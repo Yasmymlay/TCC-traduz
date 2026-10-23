@@ -1,748 +1,258 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Tradutor de Aulas</title>
 
-    <!-- Fonte -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet"
-    >
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-
-    <!-- =====================================
-         CABEÇALHO
-    ===================================== -->
-
     <header class="header">
-
         <div class="header-conteudo">
-
-            <a href="#" class="logo">
+            <a href="#inicio" class="logo">
                 <span class="logo-icone">🎓</span>
                 <span>Tradutor de Aulas</span>
             </a>
 
             <nav class="menu">
-
                 <a href="#inicio">Início</a>
                 <a href="#tradutor">Traduzir</a>
                 <a href="#resultado">Resultado</a>
                 <a href="#sobre">Sobre</a>
-
             </nav>
 
             <div class="idioma-selector">
-
-                <button class="active" data-lang="pt">
-                    PT
-                </button>
-
-                <button data-lang="es">
-                    ES
-                </button>
-
-                <button data-lang="en">
-                    EN
-                </button>
-
+                <button class="active" data-lang="pt">PT</button>
+                <button data-lang="es">ES</button>
+                <button data-lang="en">EN</button>
             </div>
-
         </div>
-
     </header>
 
-
-    <!-- =====================================
-         HERO / BANNER
-    ===================================== -->
-
     <section class="hero" id="inicio">
-
         <div class="hero-conteudo">
-
             <div class="hero-texto">
-
-                <span class="hero-tag">
-                    ✨ Aprendizado sem fronteiras
-                </span>
-
-                <h1>
-                    Traduza seus materiais
-                    <strong>de estudo</strong>
-                </h1>
-
-                <p>
-                    Transforme PDFs, documentos Word e apresentações
-                    em materiais traduzidos de forma simples, rápida
-                    e organizada.
-                </p>
-
-                <a href="#tradutor" class="btn-hero">
-                    Começar tradução
-                    <span>→</span>
-                </a>
-
+                <span class="hero-tag">✨ Aprendizado sem fronteiras</span>
+                <h1>Traduza seus materiais <strong>de estudo</strong></h1>
+                <p>Transforme PDFs, documentos Word e apresentações em materiais traduzidos de forma simples, rápida e organizada.</p>
+                <a href="#tradutor" class="btn-hero">Começar tradução <span>→</span></a>
             </div>
-
 
             <div class="hero-ilustracao">
-
                 <div class="circulo-fundo"></div>
-
-                <div class="documento documento-1">
-                    📄
-                </div>
-
-                <div class="documento documento-2">
-                    🌎
-                </div>
-
-                <div class="documento documento-3">
-                    📚
-                </div>
-
+                <div class="documento documento-1">📄</div>
+                <div class="documento documento-2">🌎</div>
+                <div class="documento documento-3">📚</div>
                 <div class="hero-card">
-
                     <span>TRADUÇÃO</span>
-
-                    <strong>
-                        PT → EN
-                    </strong>
-
-                    <small>
-                        Material pronto ✓
-                    </small>
-
+                    <strong>PT → EN</strong>
+                    <small>Material pronto ✓</small>
                 </div>
-
             </div>
-
         </div>
-
     </section>
-
-
-    <!-- =====================================
-         CONTEÚDO PRINCIPAL
-    ===================================== -->
 
     <main class="container" id="tradutor">
-
-        <!-- =====================================
-             TÍTULO
-        ===================================== -->
-
         <div class="titulo-secao">
-
-            <span class="titulo-tag">
-                ÁREA DE TRADUÇÃO
-            </span>
-
-            <h2>
-                Traduza seu material
-            </h2>
-
-            <p>
-                Envie seu arquivo e configure a tradução
-                de acordo com suas necessidades.
-            </p>
-
+            <span class="titulo-tag">ÁREA DE TRADUÇÃO</span>
+            <h2>Traduza seu material</h2>
+            <p>Envie seu arquivo e configure a tradução de acordo com suas necessidades.</p>
         </div>
-
-
-        <!-- =====================================
-             CARD PRINCIPAL
-        ===================================== -->
 
         <section class="card-principal">
-
-
-            <!-- =====================================
-                 UPLOAD
-            ===================================== -->
-
             <div class="secao">
-
                 <div class="titulo-card">
-
-                    <div class="icone-titulo">
-                        📁
-                    </div>
-
+                    <div class="icone-titulo">📁</div>
                     <div>
-
-                        <h3>
-                            Carregar arquivo
-                        </h3>
-
-                        <p>
-                            Escolha o material que deseja traduzir.
-                        </p>
-
+                        <h3>Carregar arquivo</h3>
+                        <p>Escolha o material que deseja traduzir.</p>
                     </div>
-
                 </div>
 
-
-                <label
-                    for="arquivo"
-                    class="upload-area"
-                >
-
-                    <div class="upload-icone">
-                        ☁️
-                    </div>
-
-                    <strong>
-                        Escolher arquivo
-                    </strong>
-
-                    <span>
-                        Arraste seu arquivo ou clique aqui
-                    </span>
-
-                    <small>
-                        PDF, Word ou PowerPoint • Máx. 10MB
-                    </small>
-
-                    <input
-                        type="file"
-                        id="arquivo"
-                        accept=".pdf,.docx,.pptx"
-                    >
-
+                <label for="arquivo" class="upload-area">
+                    <div class="upload-icone">☁️</div>
+                    <strong>Escolher arquivo</strong>
+                    <span>Arraste seu arquivo ou clique aqui</span>
+                    <small>PDF, Word ou PowerPoint • Máx. 10MB</small>
+                    <input type="file" id="arquivo" accept=".pdf,.docx,.pptx">
                 </label>
 
-
-                <div
-                    id="arquivoSelecionado"
-                    class="arquivo-selecionado"
-                >
-                    <span>📄</span>
-                    Nenhum arquivo selecionado
-                </div>
-
+                <div id="arquivoSelecionado" class="arquivo-selecionado"><span>📄</span> Nenhum arquivo selecionado</div>
             </div>
-
 
             <div class="linha"></div>
 
-
-            <!-- =====================================
-                 IDIOMAS
-            ===================================== -->
-
             <div class="secao">
-
                 <div class="titulo-card">
-
-                    <div class="icone-titulo">
-                        🌎
-                    </div>
-
+                    <div class="icone-titulo">🌎</div>
                     <div>
-
-                        <h3>
-                            Idiomas
-                        </h3>
-
-                        <p>
-                            Selecione o idioma original e o idioma de destino.
-                        </p>
-
+                        <h3>Idiomas</h3>
+                        <p>Selecione o idioma original e o idioma de destino.</p>
                     </div>
-
                 </div>
-
 
                 <div class="idiomas">
-
                     <div class="campo">
-
-                        <label for="idiomaOrigem">
-                            Idioma original
-                        </label>
-
+                        <label for="idiomaOrigem">Idioma original</label>
                         <div class="select-container">
-
                             <span>🇧🇷</span>
-
                             <select id="idiomaOrigem">
-
-                                <option value="pt">
-                                    Português
-                                </option>
-
-                                <option value="en">
-                                    Inglês
-                                </option>
-
-                                <option value="es">
-                                    Espanhol
-                                </option>
-
+                                <option value="pt">Português</option>
+                                <option value="en">Inglês</option>
+                                <option value="es">Espanhol</option>
                             </select>
-
                         </div>
-
                     </div>
 
-
-                    <div class="seta-idiomas">
-                        ⇄
-                    </div>
-
+                    <div class="seta-idiomas">⇄</div>
 
                     <div class="campo">
-
-                        <label for="idiomaDestino">
-                            Traduzir para
-                        </label>
-
+                        <label for="idiomaDestino">Traduzir para</label>
                         <div class="select-container">
-
                             <span>🇺🇸</span>
-
                             <select id="idiomaDestino">
-
-                                <option value="en">
-                                    Inglês
-                                </option>
-
-                                <option value="es">
-                                    Espanhol
-                                </option>
-
-                                <option value="pt">
-                                    Português
-                                </option>
-
+                                <option value="en">Inglês</option>
+                                <option value="es">Espanhol</option>
+                                <option value="pt">Português</option>
                             </select>
-
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
-
 
             <div class="linha"></div>
 
-
-            <!-- =====================================
-                 MODO DE TRADUÇÃO
-            ===================================== -->
-
             <div class="secao">
-
                 <div class="titulo-card">
-
-                    <div class="icone-titulo">
-                        ⚙️
-                    </div>
-
+                    <div class="icone-titulo">⚙️</div>
                     <div>
-
-                        <h3>
-                            Modo de tradução
-                        </h3>
-
-                        <p>
-                            Escolha como deseja organizar o material.
-                        </p>
-
+                        <h3>Modo de tradução</h3>
+                        <p>Escolha como deseja organizar o material.</p>
                     </div>
-
                 </div>
-
 
                 <div class="modo">
-
                     <label class="opcao">
-
-                        <input
-                            type="radio"
-                            name="modo"
-                            id="tipoTraducao"
-                            value="completa"
-                            checked
-                        >
-
+                        <input type="radio" name="modo" value="completa" checked>
                         <span class="radio"></span>
-
                         <div>
-
-                            <strong>
-                                Tradução completa
-                            </strong>
-
-                            <small>
-                                Traduz todo o conteúdo do arquivo.
-                            </small>
-
+                            <strong>Tradução completa</strong>
+                            <small>Traduz todo o conteúdo do arquivo.</small>
                         </div>
-
                     </label>
 
-
                     <label class="opcao">
-
-                        <input
-                            type="radio"
-                            name="modo"
-                            value="paginas"
-                        >
-
+                        <input type="radio" name="modo" value="paginas">
                         <span class="radio"></span>
-
                         <div>
-
-                            <strong>
-                                Tradução por páginas
-                            </strong>
-
-                            <small>
-                                Traduz apenas as páginas selecionadas.
-                            </small>
-
+                            <strong>Tradução por páginas</strong>
+                            <small>Traduz apenas as páginas selecionadas.</small>
                         </div>
-
                     </label>
 
-
                     <label class="opcao">
-
-                        <input
-                            type="radio"
-                            name="modo"
-                            value="capitulos"
-                        >
-
+                        <input type="radio" name="modo" value="capitulos">
                         <span class="radio"></span>
-
                         <div>
-
-                            <strong>
-                                Tradução por capítulos
-                            </strong>
-
-                            <small>
-                                Traduz somente os capítulos selecionados.
-                            </small>
-
+                            <strong>Tradução por capítulos</strong>
+                            <small>Traduz somente os capítulos selecionados.</small>
                         </div>
-
                     </label>
-
                 </div>
-
             </div>
 
+            <button id="btnTraduzir" class="btn-traduzir"><span>✨</span> Traduzir agora <span>→</span></button>
 
-            <!-- =====================================
-                 BOTÃO TRADUZIR
-            ===================================== -->
-
-            <button
-                id="btnTraduzir"
-                class="btn-traduzir"
-            >
-
-                <span>✨</span>
-
-                Traduzir agora
-
-                <span>→</span>
-
-            </button>
-
-
-            <!-- =====================================
-                 MENSAGEM
-            ===================================== -->
-
-            <div
-                id="mensagem"
-                class="mensagem"
-            >
-                Selecione um arquivo e configure os idiomas para começar.
-            </div>
-
+            <div id="mensagem" class="mensagem">Selecione um arquivo e configure os idiomas para começar.</div>
         </section>
 
-
-        <!-- =====================================
-             RESULTADO
-        ===================================== -->
-
-        <section
-            id="resultado"
-            class="resultado"
-        >
-
+        <section id="resultado" class="resultado">
             <div class="resultado-header">
-
                 <div>
-
-                    <span class="titulo-tag">
-                        MATERIAL TRADUZIDO
-                    </span>
-
-                    <h2>
-                        Resultado da tradução
-                    </h2>
-
-                    <p>
-                        Confira o conteúdo traduzido do seu material.
-                    </p>
-
+                    <span class="titulo-tag">MATERIAL TRADUZIDO</span>
+                    <h2>Resultado da tradução</h2>
+                    <p>Confira o conteúdo traduzido do seu material.</p>
                 </div>
-
-                <div class="resultado-icone">
-                    📚
-                </div>
-
+                <div class="resultado-icone">📚</div>
             </div>
-
-
-            <!-- =====================================
-                 INFORMAÇÕES
-            ===================================== -->
 
             <div class="informacoes">
-
                 <div class="info">
-
                     <span>Arquivo</span>
-
-                    <strong id="nomeResultado">
-                        -
-                    </strong>
-
+                    <strong id="nomeResultado">-</strong>
                 </div>
 
-
                 <div class="info">
-
                     <span>Formato</span>
-
-                    <strong id="formatoResultado">
-                        -
-                    </strong>
-
+                    <strong id="formatoResultado">-</strong>
                 </div>
 
-
                 <div class="info">
-
                     <span>Idioma</span>
-
-                    <strong id="idiomaResultado">
-                        -
-                    </strong>
-
+                    <strong id="idiomaResultado">-</strong>
                 </div>
-
 
                 <div class="info">
-
                     <span>Modo</span>
-
-                    <strong id="modoResultado">
-                        -
-                    </strong>
-
+                    <strong id="modoResultado">-</strong>
                 </div>
-
             </div>
-
-
-            <!-- =====================================
-                 VISUALIZAÇÃO
-            ===================================== -->
 
             <div class="visualizacao-area">
-
                 <div class="visualizacao-topo">
-
-                    <span>
-                        📄 Conteúdo traduzido
-                    </span>
-
+                    <span>📄 Conteúdo traduzido</span>
                 </div>
-
-
-                <div
-                    id="visualizacao"
-                    class="visualizacao"
-                >
+                <div id="visualizacao" class="visualizacao">
                     O conteúdo do arquivo aparecerá aqui.
                 </div>
-
             </div>
 
-
-            <!-- =====================================
-                 NAVEGAÇÃO DOS SLIDES
-            ===================================== -->
-
-            <div
-                id="navegacaoSlides"
-                class="navegacao-slides"
-            >
-
-                <button
-                    id="btnAnterior"
-                    class="btn-slide"
-                >
-                    ← Anterior
-                </button>
-
-                <span id="contadorSlides">
-                    1 / 1
-                </span>
-
-                <button
-                    id="btnProximo"
-                    class="btn-slide"
-                >
-                    Próximo →
-                </button>
-
+            <div id="navegacaoSlides" class="navegacao-slides">
+                <button id="btnAnterior" class="btn-slide">← Anterior</button>
+                <span id="contadorSlides">1 / 1</span>
+                <button id="btnProximo" class="btn-slide">Próximo →</button>
             </div>
-
-
-            <!-- =====================================
-                 BOTÕES
-            ===================================== -->
 
             <div class="botoes">
-
-                <button
-                    id="btnNovo"
-                    class="btn-secundario"
-                >
-                    ＋ Novo arquivo
-                </button>
-
-                <button
-                    id="btnBaixar"
-                    class="btn-secundario principal"
-                >
-                    ↓ Baixar tradução
-                </button>
-
+                <button id="btnNovo" class="btn-secundario">＋ Novo arquivo</button>
+                <button id="btnBaixar" class="btn-secundario principal">↓ Baixar tradução</button>
             </div>
-
         </section>
-
     </main>
 
-
-    <!-- =====================================
-         SOBRE
-    ===================================== -->
-
-    <section
-        id="sobre"
-        class="sobre"
-    >
-
+    <section id="sobre" class="sobre">
         <div class="sobre-conteudo">
-
-            <span class="titulo-tag">
-                SOBRE O PROJETO
-            </span>
-
-            <h2>
-                Aprendizado sem fronteiras
-            </h2>
-
-            <p>
-                O Tradutor de Aulas foi desenvolvido para
-                facilitar o acesso a materiais educacionais
-                em diferentes idiomas, tornando o processo
-                de aprendizagem mais simples e acessível.
-            </p>
+            <span class="titulo-tag">SOBRE O PROJETO</span>
+            <h2>Aprendizado sem fronteiras</h2>
+            <p>O Tradutor de Aulas foi desenvolvido para facilitar o acesso a materiais educacionais em diferentes idiomas, tornando o processo de aprendizagem mais simples e acessível.</p>
 
             <div class="beneficios">
-
-                <div>
-                    <strong>📚</strong>
-                    <span>Materiais educacionais</span>
-                </div>
-
-                <div>
-                    <strong>🌎</strong>
-                    <span>Vários idiomas</span>
-                </div>
-
-                <div>
-                    <strong>⚡</strong>
-                    <span>Processo simples</span>
-                </div>
-
+                <div><strong>📚</strong><span>Materiais educacionais</span></div>
+                <div><strong>🌎</strong><span>Vários idiomas</span></div>
+                <div><strong>⚡</strong><span>Processo simples</span></div>
             </div>
-
         </div>
-
     </section>
 
-
-    <!-- =====================================
-         RODAPÉ
-    ===================================== -->
-
     <footer>
-
         <div class="footer-conteudo">
-
-            <strong>
-                🎓 Tradutor de Aulas
-            </strong>
-
+            <strong>🎓 Tradutor de Aulas</strong>
             <span>•</span>
-
-            <span>
-                Aprendizado sem fronteiras
-            </span>
-
+            <span>Aprendizado sem fronteiras</span>
             <span>•</span>
-
-            <span>
-                2026
-            </span>
-
+            <span>2026</span>
         </div>
-
     </footer>
 
-
-    <!-- =====================================
-         BIBLIOTECAS
-    ===================================== -->
-
     <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
-
-    <!-- SEU JAVASCRIPT -->
     <script src="script.js"></script>
-
 </body>
 
-</html> 
+</html>
