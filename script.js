@@ -50,8 +50,8 @@ function escapeHtml(value = "") {
 function mostrarMensagem(texto, erro = false) {
     if (!mensagem) return;
     mensagem.textContent = texto;
-    mensagem.style.background = erro ? "rgba(190, 60, 60, 0.08)" : "rgba(18, 115, 89, 0.06)";
-    mensagem.style.color = erro ? "#7d2b2b" : "#245d5c";
+    mensagem.classList.toggle("is-error", erro);
+    mensagem.classList.toggle("is-success", !erro);
 }
 
 if (arquivoAbertoDiretamente) {
@@ -61,7 +61,15 @@ if (arquivoAbertoDiretamente) {
 function renderSlidePreview(index = 0) {
     if (!slides.length || !visualizacao) {
         if (visualizacao) {
-            visualizacao.innerHTML = "O conteúdo do arquivo aparecerá aqui.";
+            visualizacao.innerHTML = `
+                <div class="resultado-vazio">
+                    <span class="resultado-vazio-icone" aria-hidden="true">
+                        <svg viewBox="0 0 52 52" fill="none"><rect x="7" y="7" width="38" height="38" rx="14" stroke="currentColor" stroke-width="1.6" /><path d="M17 20h18M17 26h18M17 32h11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
+                    </span>
+                    <strong>Seu resultado aparecerá aqui</strong>
+                    <span>Envie um documento para visualizar o conteúdo traduzido.</span>
+                </div>
+            `;
         }
         if (contadorSlides) {
             contadorSlides.textContent = "1 / 1";
@@ -188,7 +196,7 @@ function atualizarArquivo(file) {
     if (!arquivoAtual) {
         arquivoInput.value = "";
         if (arquivoSelecionado) {
-            arquivoSelecionado.innerHTML = '<span>📄</span> Nenhum arquivo selecionado';
+            arquivoSelecionado.innerHTML = '<span class="arquivo-vazio-icone" aria-hidden="true">+</span><span>Nenhum arquivo selecionado</span>';
         }
         document.querySelector(".upload-area")?.classList.remove("is-filled");
         return;
@@ -280,7 +288,7 @@ if (btnTraduzir) {
         }
 
         btnTraduzir.disabled = true;
-        btnTraduzir.innerHTML = "<span>⏳</span> Processando...";
+        btnTraduzir.innerHTML = '<span class="btn-traduzir-icone" aria-hidden="true">⏳</span> Processando documento...';
 
         try {
             const formData = new FormData();
@@ -317,7 +325,7 @@ if (btnTraduzir) {
             mostrarMensagem(`❌ ${mensagemErro}`, true);
         } finally {
             btnTraduzir.disabled = false;
-            btnTraduzir.innerHTML = '<span>✨</span> Traduzir agora <span>→</span>';
+            btnTraduzir.innerHTML = '<span class="btn-traduzir-icone" aria-hidden="true">✦</span> Traduzir documento <span class="btn-traduzir-seta" aria-hidden="true">→</span>';
         }
     });
 }
@@ -341,7 +349,7 @@ if (btnProximo) {
 if (btnNovo) {
     btnNovo.addEventListener("click", () => {
         atualizarArquivo(null);
-        if (mensagem) mensagem.textContent = "Selecione um arquivo e configure os idiomas para começar.";
+        mostrarMensagem("Selecione um arquivo e configure os idiomas para começar.");
 
         slides = [];
         slideAtual = 0;
