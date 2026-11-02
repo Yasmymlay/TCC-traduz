@@ -27,7 +27,10 @@ const contadorSlides = document.getElementById("contadorSlides");
 let arquivoAtual = null;
 let slides = [];
 let slideAtual = 0;
-let idiomaAtivo = "pt";
+const arquivoAbertoDiretamente = window.location.protocol === "file:";
+const avisoServidorLocal = "Para traduzir, feche esta página, execute iniciar.bat na pasta do projeto e use o endereço http://127.0.0.1:5001 que será aberto.";
+const tamanhoMaximoArquivo = 10 * 1024 * 1024;
+const extensoesPermitidas = new Set(["pdf", "docx", "pptx"]);
 
 const idiomaMap = {
     pt: "Português",
@@ -49,6 +52,10 @@ function mostrarMensagem(texto, erro = false) {
     mensagem.textContent = texto;
     mensagem.style.background = erro ? "rgba(190, 60, 60, 0.08)" : "rgba(18, 115, 89, 0.06)";
     mensagem.style.color = erro ? "#7d2b2b" : "#245d5c";
+}
+
+if (arquivoAbertoDiretamente) {
+    mostrarMensagem(`⚠️ ${avisoServidorLocal}`, true);
 }
 
 function renderSlidePreview(index = 0) {
@@ -73,27 +80,12 @@ function renderSlidePreview(index = 0) {
         if (!text) return "";
 
         const type = block.type || "paragraph";
-        const isListItem = type === "list-item" || /^(?:[a-zA-Z]|\d+)[\).]/.test(text.trim());
+        if (type === "heading") {
+            return `<h3 class="slide-heading">${text}</h3>`;
+        }
 
-        if (isListItem) {
-            const headingMatch = text.match(/^([^:]{0,80})[:\-]?\s*(.*)$/);
-            const heading = headingMatch ? escapeHtml(headingMatch[1].trim()) : "";
-            const content = headingMatch ? escapeHtml(headingMatch[2].trim()) : "";
-
-            if (content) {
-                return `
-                    <div class="slide-item">
-                        <strong>${heading || text}</strong>
-                        <p>${content}</p>
-                    </div>
-                `;
-            }
-
-            return `
-                <div class="slide-item">
-                    <strong>${text}</strong>
-                </div>
-            `;
+        if (type === "list-item" || /^\d+[.)]\s/.test(text.trim())) {
+            return `<p class="slide-list-item">${type === "list-item" ? "• " : ""}${text}</p>`;
         }
 
         return `<p class="slide-question">${text}</p>`;
@@ -126,7 +118,7 @@ function renderSlidePreview(index = 0) {
                     ${subtitle ? `<h3>${escapeHtml(subtitle)}</h3>` : ""}
 
                     <div class="slide-panel">
-                        ${itensHtml}
+                        ${itensHtml || '<p class="slide-question">Esta página não possui texto legível.</p>'}
                     </div>
                 </section>
             </main>
@@ -189,43 +181,73 @@ function montarResultado(payload) {
 // SELEÇÃO DO ARQUIVO
 // =====================================
 
-if (arquivoInput) {
-    arquivoInput.addEventListener("change", function () {
-        arquivoAtual = this.files[0];
+function atualizarArquivo(file) {
+    arquivoAtual = file || null;
+    if (!arquivoInput) return;
 
-        if (!arquivoAtual) {
-            if (arquivoSelecionado) {
-                arquivoSelecionado.innerHTML = '<span>📄</span> Nenhum arquivo selecionado';
-            }
-            return;
-        }
-
-        const extensao = arquivoAtual.name
-            .split(".")
-            .pop()
-            .toLowerCase();
-
-        const formatosPermitidos = ["pdf", "docx", "pptx"];
-
-        if (!formatosPermitidos.includes(extensao)) {
-            if (arquivoSelecionado) {
-                arquivoSelecionado.innerHTML = '<span>📄</span> Formato não permitido';
-            }
-            arquivoAtual = null;
-            this.value = "";
-            return;
-        }
-
+    if (!arquivoAtual) {
+        arquivoInput.value = "";
         if (arquivoSelecionado) {
-            arquivoSelecionado.innerHTML = `📄 <strong>${escapeHtml(arquivoAtual.name)}</strong>`;
+            arquivoSelecionado.innerHTML = '<span>📄</span> Nenhum arquivo selecionado';
         }
+        document.querySelector(".upload-area")?.classList.remove("is-filled");
+        return;
+    }
 
-        const uploadArea = document.querySelector(".upload-area");
-        if (uploadArea) {
-            uploadArea.classList.add("is-filled");
-        }
+    const extensao = arquivoAtual.name.split(".").pop().toLowerCase();
+    if (!extensoesPermitidas.has(extensao)) {
+        mostrarMensagem("❌ Formato inválido. Selecione um arquivo PDF, DOCX ou PPTX.", true);
+        atualizarArquivo(null);
+        return;
+    }
 
-        mostrarMensagem("✅ Arquivo selecionado.");
+    if (!arquivoAtual.size) {
+        mostrarMensagem("❌ O arquivo está vazio. Selecione um documento com conteúdo.", true);
+        atualizarArquivo(null);
+        return;
+    }
+
+    if (arquivoAtual.size > tamanhoMaximoArquivo) {
+        mostrarMensagem("❌ O arquivo excede o limite de 10 MB.", true);
+        atualizarArquivo(null);
+        return;
+    }
+
+    if (arquivoSelecionado) {
+        arquivoSelecionado.innerHTML = `📄 <strong>${escapeHtml(arquivoAtual.name)}</strong>`;
+    }
+    document.querySelector(".upload-area")?.classList.add("is-filled");
+    mostrarMensagem("✅ Arquivo selecionado.");
+}
+
+if (arquivoInput) {
+    arquivoInput.addEventListener("change", () => atualizarArquivo(arquivoInput.files[0]));
+}
+
+const uploadArea = document.querySelector(".upload-area");
+if (uploadArea) {
+    ["dragenter", "dragover"].forEach((eventName) => {
+        uploadArea.addEventListener(eventName, (event) => {
+            event.preventDefault();
+            uploadArea.classList.add("is-dragging");
+        });
+    });
+
+    ["dragleave", "drop"].forEach((eventName) => {
+        uploadArea.addEventListener(eventName, (event) => {
+            event.preventDefault();
+            uploadArea.classList.remove("is-dragging");
+        });
+    });
+
+    uploadArea.addEventListener("drop", (event) => {
+        const file = event.dataTransfer?.files[0];
+        if (!file || !arquivoInput) return;
+
+        const transfer = new DataTransfer();
+        transfer.items.add(file);
+        arquivoInput.files = transfer.files;
+        atualizarArquivo(file);
     });
 }
 
@@ -235,13 +257,27 @@ if (arquivoInput) {
 
 if (btnTraduzir) {
     btnTraduzir.addEventListener("click", async function () {
-        if (!arquivoInput || !arquivoInput.files.length) {
+        if (arquivoAbertoDiretamente) {
+            mostrarMensagem(`⚠️ ${avisoServidorLocal}`, true);
+            return;
+        }
+
+        if (!arquivoInput || !arquivoAtual || !arquivoInput.files.length) {
             mostrarMensagem("⚠️ Primeiro selecione um arquivo.", true);
             return;
         }
 
         const origem = document.getElementById("idiomaOrigem")?.value || "pt";
-        const destino = document.getElementById("idiomaDestino")?.value || "en";
+        const destinoSelecionado = document.getElementById("idiomaDestino")?.value;
+        if (!destinoSelecionado) {
+            mostrarMensagem("⚠️ Selecione o idioma para o qual deseja traduzir.", true);
+            return;
+        }
+        const destino = destinoSelecionado;
+        if (origem === destino) {
+            mostrarMensagem("⚠️ Selecione idiomas diferentes para a tradução.", true);
+            return;
+        }
 
         btnTraduzir.disabled = true;
         btnTraduzir.innerHTML = "<span>⏳</span> Processando...";
@@ -274,8 +310,11 @@ if (btnTraduzir) {
                 resultado.scrollIntoView({ behavior: "smooth", block: "start" });
             }
         } catch (erro) {
-            console.error("Erro na tradução:", erro);
-            mostrarMensagem(`❌ ${erro.message || "Não foi possível concluir a tradução."}`, true);
+            console.warn("Falha na tradução:", erro);
+            const mensagemErro = erro instanceof TypeError && erro.message === "Failed to fetch"
+                ? "Não foi possível acessar o servidor. Execute iniciar.bat e mantenha as janelas dos serviços abertas."
+                : erro.message || "Não foi possível concluir a tradução.";
+            mostrarMensagem(`❌ ${mensagemErro}`, true);
         } finally {
             btnTraduzir.disabled = false;
             btnTraduzir.innerHTML = '<span>✨</span> Traduzir agora <span>→</span>';
@@ -301,8 +340,7 @@ if (btnProximo) {
 
 if (btnNovo) {
     btnNovo.addEventListener("click", () => {
-        if (arquivoInput) arquivoInput.value = "";
-        if (arquivoSelecionado) arquivoSelecionado.innerHTML = '<span>📄</span> Nenhum arquivo selecionado';
+        atualizarArquivo(null);
         if (mensagem) mensagem.textContent = "Selecione um arquivo e configure os idiomas para começar.";
 
         slides = [];
@@ -324,20 +362,37 @@ if (btnBaixar) {
             return;
         }
 
-        const texto = slides.map((slide) => {
-            const parts = [slide.page_title || '', slide.subtitle || '', ...(slide.blocks || []).map((block) => block.text || '')].filter(Boolean);
-            return parts.join('\n\n');
-        }).join('\n\n');
+        try {
+            const texto = slides.map((slide) => {
+                const parts = [
+                    slide.page_title || "",
+                    slide.title || "",
+                    slide.subtitle || "",
+                    ...(slide.blocks || []).map((block) => block.text || ""),
+                ].filter(Boolean);
+                return parts.join("\n\n");
+            }).join("\n\n--------------------\n\n");
 
-        const blob = new Blob([texto], { type: "text/plain;charset=utf-8" });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = "tradução.txt";
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        URL.revokeObjectURL(url);
+            if (!texto.trim()) {
+                mostrarMensagem("❌ Não há conteúdo traduzido para baixar.", true);
+                return;
+            }
+
+            const blob = new Blob(["\uFEFF", texto], { type: "text/plain;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            const nomeOriginal = arquivoAtual?.name || nomeResultado?.textContent || "material";
+            const nomeBase = nomeOriginal.replace(/\.[^.]+$/, "").replace(/[<>:"/\\|?*\x00-\x1f]/g, "_");
+            link.href = url;
+            link.download = `${nomeBase}-traduzido.txt`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        } catch (erro) {
+            console.error("Erro no download:", erro);
+            mostrarMensagem("❌ Não foi possível baixar a tradução. Tente novamente.", true);
+        }
     });
 }
 

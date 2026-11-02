@@ -27,11 +27,6 @@
                 <a href="#sobre">Sobre</a>
             </nav>
 
-            <div class="idioma-selector">
-                <button class="active" data-lang="pt">PT</button>
-                <button data-lang="es">ES</button>
-                <button data-lang="en">EN</button>
-            </div>
         </div>
     </header>
 
@@ -79,8 +74,8 @@
                     <div class="upload-icone">☁️</div>
                     <strong>Escolher arquivo</strong>
                     <span>Arraste seu arquivo ou clique aqui</span>
-                    <small>PDF, Word ou PowerPoint • Máx. 10MB</small>
-                    <input type="file" id="arquivo" accept=".pdf,.docx,.pptx">
+                    <small>PDF, Word ou PowerPoint • Máx. 10 MB</small>
+                    <input type="file" id="arquivo" accept=".pdf,.docx,.pptx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation">
                 </label>
 
                 <div id="arquivoSelecionado" class="arquivo-selecionado"><span>📄</span> Nenhum arquivo selecionado</div>
@@ -138,38 +133,19 @@
                 </div>
 
                 <div class="modo">
-                    <label class="opcao">
-                        <input type="radio" name="modo" value="completa" checked>
-                        <span class="radio"></span>
+                    <div class="opcao">
+                        <span class="radio radio-ativo"></span>
                         <div>
                             <strong>Tradução completa</strong>
                             <small>Traduz todo o conteúdo do arquivo.</small>
                         </div>
-                    </label>
-
-                    <label class="opcao">
-                        <input type="radio" name="modo" value="paginas">
-                        <span class="radio"></span>
-                        <div>
-                            <strong>Tradução por páginas</strong>
-                            <small>Traduz apenas as páginas selecionadas.</small>
-                        </div>
-                    </label>
-
-                    <label class="opcao">
-                        <input type="radio" name="modo" value="capitulos">
-                        <span class="radio"></span>
-                        <div>
-                            <strong>Tradução por capítulos</strong>
-                            <small>Traduz somente os capítulos selecionados.</small>
-                        </div>
-                    </label>
+                    </div>
                 </div>
             </div>
 
             <button id="btnTraduzir" class="btn-traduzir"><span>✨</span> Traduzir agora <span>→</span></button>
 
-            <div id="mensagem" class="mensagem">Selecione um arquivo e configure os idiomas para começar.</div>
+            <div id="mensagem" class="mensagem" role="status" aria-live="polite">Selecione um arquivo e configure os idiomas para começar.</div>
         </section>
 
         <section id="resultado" class="resultado">
@@ -250,8 +226,6 @@
         </div>
     </footer>
 
-    <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="script.js"></script>
 </body>
 

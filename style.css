@@ -10,7 +10,7 @@ html {
 
 body {
     font-family: 'Inter', 'Segoe UI', sans-serif;
-    background: #050505;
+    background: #f4f8fc;
     color: #172b4d;
     line-height: 1.5;
 }
@@ -371,6 +371,13 @@ input:focus-visible {
     background: rgba(35, 141, 107, 0.04);
 }
 
+.upload-area.is-dragging,
+.upload-area:focus-within {
+    border-color: #168a70;
+    background: rgba(35, 141, 107, 0.1);
+    box-shadow: 0 0 0 4px rgba(35, 141, 107, 0.08);
+}
+
 .upload-icone {
     font-size: 30px;
 }
@@ -534,6 +541,12 @@ input:focus-visible {
 
 .btn-traduzir:hover {
     transform: translateY(-2px);
+}
+
+.btn-traduzir:disabled {
+    cursor: wait;
+    opacity: 0.75;
+    transform: none;
 }
 
 .mensagem {
@@ -810,6 +823,20 @@ input:focus-visible {
     max-width: 720px;
 }
 
+.slide-list-item {
+    font-size: clamp(1.05rem, 0.7vw + 0.85rem, 1.5rem);
+    line-height: 1.55;
+    margin-bottom: 12px;
+    overflow-wrap: anywhere;
+}
+
+.slide-heading {
+    font-size: clamp(1.4rem, 1vw + 1rem, 2rem);
+    line-height: 1.35;
+    margin: 0 0 18px;
+    overflow-wrap: anywhere;
+}
+
 .navegacao-slides {
     display: flex;
     justify-content: space-between;
@@ -973,5 +1000,14 @@ footer {
 
     .slide-panel {
         padding: 18px 18px 12px;
+    }
+
+    .navegacao-slides {
+        flex-wrap: wrap;
+    }
+
+    .btn-slide,
+    .btn-secundario {
+        min-height: 44px;
     }
 }

@@ -1,6 +1,7 @@
 import os
 import re
 import tempfile
+import zipfile
 from pathlib import Path
 
 import requests
@@ -10,9 +11,10 @@ from pptx import Presentation
 from pypdf import PdfReader
 from werkzeug.utils import secure_filename
 
-app = Flask(__name__, static_folder='.', static_url_path='')
-
 ALLOWED_EXTENSIONS = {'.pdf', '.docx', '.pptx'}
+MAX_UPLOAD_BYTES = 10 * 1024 * 1024
+app = Flask(__name__, static_folder='.', static_url_path='')
+app.config['MAX_CONTENT_LENGTH'] = MAX_UPLOAD_BYTES + 64 * 1024
 DEFAULT_LIBRETRANSLATE_URLS = [
     'http://localhost:5000',
     'http://127.0.0.1:5000',
@@ -124,16 +126,27 @@ def translate_chunk(text: str, source_lang: str, target_lang: str) -> str:
                 last_error = RuntimeError(f'Erro no LibreTranslate ({url}): {response.text[:300]}')
                 continue
             data = response.json()
-            translated = data.get('translatedText') or data.get('translations', [{}])[0].get('translatedText')
-            if translated:
-                return translated.strip()
-            return text
+            translated = data.get('translatedText')
+            if not translated and isinstance(data.get('translations'), list):
+                translated = next(
+                    (
+                        item.get('translatedText')
+                        for item in data['translations']
+                        if isinstance(item, dict) and item.get('translatedText')
+                    ),
+                    None,
+                )
+            if not isinstance(translated, str) or not translated.strip():
+                raise RuntimeError('O serviço de tradução retornou uma resposta vazia.')
+            return translated.strip()
+        except RuntimeError:
+            raise
         except (requests.RequestException, ValueError) as exc:
             last_error = exc
             continue
 
     if last_error is not None:
-        raise RuntimeError(f'Não foi possível conectar ao LibreTranslate. Verifique LIBRETRANSLATE_URL e o serviço em execução. Detalhe: {last_error}')
+        raise RuntimeError(f'Não foi possível conectar ao serviço de tradução. Verifique se o LibreTranslate está em execução. Detalhe: {last_error}')
     raise RuntimeError('Nenhum endpoint de LibreTranslate disponível para tradução.')
 
 
@@ -151,31 +164,6 @@ def translate_blocks(blocks, source_lang, target_lang):
                     'text': translated_text,
                 })
     return translated
-
-
-def decorate_page(page):
-    blocks = page.get('blocks', [])
-    title = ''
-    subtitle = ''
-    remaining = []
-
-    if blocks:
-        first = clean_text(blocks[0].get('text', ''))
-        if len(first) < 100 and not re.match(r'^(?:[a-zA-Z]|\d+)[\).]', first):
-            title = first
-            blocks = blocks[1:]
-
-    if blocks:
-        second = clean_text(blocks[0].get('text', ''))
-        if len(second) < 180 and not re.match(r'^(?:[a-zA-Z]|\d+)[\).]', second):
-            subtitle = second
-            blocks = blocks[1:]
-
-    remaining = blocks
-    page['title'] = title
-    page['subtitle'] = subtitle
-    page['blocks'] = remaining
-    return page
 
 
 def extract_pdf_document(file_path: str):
@@ -203,7 +191,14 @@ def extract_word_document(file_path: str):
     for paragraph in document.paragraphs:
         text = clean_text(paragraph.text)
         if text:
-            blocks.append({'type': 'paragraph', 'text': text})
+            style_name = (paragraph.style.name or '').lower()
+            if style_name.startswith(('heading', 'title', 'subtitle')):
+                block_type = 'heading'
+            elif 'list' in style_name:
+                block_type = 'list-item'
+            else:
+                block_type = 'paragraph'
+            blocks.append({'type': block_type, 'text': text})
     for table in document.tables:
         for row in table.rows:
             row_text = ' | '.join(clean_text(cell.text) for cell in row.cells if clean_text(cell.text))
@@ -212,7 +207,7 @@ def extract_word_document(file_path: str):
 
     page = {
         'page_title': 'Página 1',
-        'blocks': blocks or [{'type': 'paragraph', 'text': 'Documento Word sem conteúdo textual.'}],
+        'blocks': blocks,
     }
     return [page]
 
@@ -230,8 +225,6 @@ def extract_powerpoint_document(file_path: str):
                 if text:
                     block_type = 'list-item' if re.match(r'^(?:[a-zA-Z]|\d+)[\).]', text) else 'paragraph'
                     blocks.append({'type': block_type, 'text': text})
-        if not blocks:
-            blocks = [{'type': 'paragraph', 'text': 'Slide sem conteúdo textual.'}]
         pages.append({
             'page_title': f'Slide {slide_number}',
             'blocks': blocks,
@@ -250,25 +243,26 @@ def extract_document_pages(file_path: str, extension: str):
     raise ValueError('Formato não suportado.')
 
 
-def translate_document_pages(file_path: str, extension: str, source_lang: str, target_lang: str):
-    pages = extract_document_pages(file_path, extension)
+def translate_document_pages(file_path: str, extension: str, source_lang: str, target_lang: str, pages=None):
+    if pages is None:
+        pages = extract_document_pages(file_path, extension)
     translated_pages = []
+    has_text = any(
+        clean_text(block.get('text', ''))
+        for page in pages
+        for block in page.get('blocks', [])
+    )
+    if not has_text:
+        raise ValueError('Nenhum texto foi encontrado no documento para traduzir.')
 
     for page in pages:
         translated = translate_blocks(page.get('blocks', []), source_lang, target_lang)
-        if not translated:
-            continue
-        page['blocks'] = translated
-        decorated = decorate_page(page)
         translated_pages.append({
-            'page_title': decorated.get('page_title', page.get('page_title', 'Página 1')),
-            'title': decorated.get('title', ''),
-            'subtitle': decorated.get('subtitle', ''),
-            'blocks': decorated.get('blocks', []),
+            'page_title': page.get('page_title', 'Página 1'),
+            'title': '',
+            'subtitle': '',
+            'blocks': translated,
         })
-
-    if not translated_pages:
-        raise ValueError('Nenhum conteúdo foi encontrado para tradução.')
 
     return translated_pages
 
@@ -287,6 +281,13 @@ def health():
     })
 
 
+@app.errorhandler(413)
+def request_entity_too_large(_error):
+    return jsonify({
+        'error': 'O arquivo excede o limite de 10 MB. Escolha um arquivo menor.'
+    }), 413
+
+
 @app.route('/api/translate', methods=['POST'])
 def translate_document():
     if 'file' not in request.files:
@@ -299,6 +300,13 @@ def translate_document():
     file_ext = Path(uploaded_file.filename).suffix.lower()
     if file_ext not in ALLOWED_EXTENSIONS:
         return jsonify({'error': 'Formato não permitido. Use PDF, DOCX ou PPTX.'}), 400
+    uploaded_file.seek(0, os.SEEK_END)
+    file_size = uploaded_file.tell()
+    uploaded_file.seek(0)
+    if file_size == 0:
+        return jsonify({'error': 'O arquivo está vazio. Selecione um documento com conteúdo.'}), 400
+    if file_size > MAX_UPLOAD_BYTES:
+        return jsonify({'error': 'O arquivo excede o limite de 10 MB. Escolha um arquivo menor.'}), 413
 
     source_lang = normalize_lang(request.form.get('source_lang', 'pt'))
     target_lang = normalize_lang(request.form.get('target_lang', 'en'))
@@ -310,15 +318,37 @@ def translate_document():
         return jsonify({'error': 'Selecione idiomas diferentes para a tradução.'}), 400
 
     original_name = secure_filename(uploaded_file.filename)
+    if not original_name:
+        return jsonify({'error': 'O nome do arquivo é inválido.'}), 400
     base_dir = tempfile.mkdtemp(prefix='tradutor-')
     file_path = os.path.join(base_dir, original_name)
     uploaded_file.save(file_path)
 
     try:
-        pages = translate_document_pages(file_path, file_ext, source_lang, target_lang)
-    except Exception as exc:
-        return jsonify({'error': str(exc)}), 500
+        if file_ext in {'.docx', '.pptx'} and not zipfile.is_zipfile(file_path):
+            return jsonify({'error': 'O arquivo não é um documento válido para o formato selecionado.'}), 400
+        try:
+            pages = extract_document_pages(file_path, file_ext)
+        except Exception as exc:
+            app.logger.exception('Could not read uploaded %s file', file_ext)
+            return jsonify({'error': 'Não foi possível ler o arquivo. Verifique se está íntegro e não protegido por senha.'}), 400
+        if not any(
+            clean_text(block.get('text', ''))
+            for page in pages
+            for block in page.get('blocks', [])
+        ):
+            return jsonify({'error': 'Nenhum texto foi encontrado no documento. PDFs digitalizados como imagem não podem ser lidos.'}), 422
+        try:
+            translated_pages = translate_document_pages(
+                file_path, file_ext, source_lang, target_lang, pages=pages
+            )
+        except Exception as exc:
+            app.logger.exception('Could not translate uploaded %s file', file_ext)
+            if isinstance(exc, ValueError):
+                return jsonify({'error': str(exc)}), 422
+            return jsonify({'error': str(exc)}), 503
     finally:
+        uploaded_file.close()
         try:
             os.remove(file_path)
         except FileNotFoundError:
@@ -332,7 +362,7 @@ def translate_document():
         'filename': original_name,
         'source_lang': source_lang,
         'target_lang': target_lang,
-        'pages': pages,
+        'pages': translated_pages,
     })
 
 
