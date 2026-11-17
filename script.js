@@ -43,7 +43,7 @@ const arquivoAbertoDiretamente = window.location.protocol === "file:";
 const avisoServidorLocal = "Para traduzir, feche esta página, execute iniciar.bat na pasta do projeto e use o endereço http://127.0.0.1:5001 que será aberto.";
 const tamanhoMaximoArquivo = 10 * 1024 * 1024;
 let tempoMaximoTraducaoSegundos = 300;
-const extensoesPermitidas = new Set(["pdf", "docx", "pptx"]);
+const extensoesPermitidas = new Set(["pdf"]);
 
 const idiomaMap = {
     pt: "Português",
@@ -463,7 +463,7 @@ function atualizarArquivo(file) {
 
     const extensao = arquivoAtual.name.split(".").pop().toLowerCase();
     if (!extensoesPermitidas.has(extensao)) {
-        mostrarMensagem("❌ Formato inválido. Selecione um arquivo PDF, DOCX ou PPTX.", true);
+        mostrarMensagem("❌ Formato inválido. Selecione somente um arquivo PDF.", true);
         atualizarArquivo(null);
         return;
     }

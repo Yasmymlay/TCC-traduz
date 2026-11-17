@@ -1,8 +1,11 @@
 # Tradutor de Aulas
 
-Aplicação local Flask para extrair texto de PDF, DOCX e PPTX, traduzir para
+Aplicação local Flask para extrair texto de arquivos PDF, traduzir para
 português, inglês ou espanhol e visualizar/baixar o resultado em TXT, DOCX,
 PPTX ou PDF.
+
+O envio para tradução aceita somente arquivos PDF. Os formatos de download
+continuam sendo TXT, DOCX, PPTX e PDF.
 
 ## Instalação e execução no Windows
 
@@ -150,14 +153,14 @@ detectados. `GET /api/health` verifica apenas se o aplicativo está ativo.
 
 ## Demonstração
 
-Use “Carregar demonstração” na página e selecione PDF, DOCX ou PPTX. A demonstração
-usa arquivos de exemplo e resultados pré-preparados; não envia documento ao
-serviço de tradução e não deve ser confundida com uma tradução ao vivo. Ela
-continua disponível quando os mecanismos de tradução estão desligados.
+Use “Carregar demonstração” na página e selecione PDF, DOCX ou PPTX. Esses
+formatos são exemplos com resultados pré-preparados, não arquivos enviados para
+tradução ao vivo. O envio para tradução continua aceitando somente PDF. A
+demonstração permanece disponível quando os mecanismos de tradução estão desligados.
 
 ## Formatos e limitações
 
-- Arquivos enviados podem ter até 10 MB.
+- Somente arquivos PDF podem ser enviados, com limite de 10 MB.
 - Os downloads TXT, DOCX, PPTX e PDF preservam páginas/slides, títulos,
   parágrafos, listas e linhas de tabela quando identificados. São documentos
   reconstruídos; não prometem manter o tema, as imagens ou o posicionamento

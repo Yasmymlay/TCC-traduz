@@ -6,7 +6,6 @@ import os
 import re
 import tempfile
 import time
-import zipfile
 from pathlib import Path
 from threading import Lock
 from xml.sax.saxutils import escape
@@ -48,7 +47,7 @@ from translation_engine import (
 )
 
 LOGGER = logging.getLogger(__name__)
-ALLOWED_EXTENSIONS = {'.pdf', '.docx', '.pptx'}
+ALLOWED_EXTENSIONS = {'.pdf'}
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 try:
     MAX_TRANSLATION_SECONDS = int(os.getenv('TRANSLATION_TOTAL_TIMEOUT_SECONDS', '300'))
@@ -970,7 +969,7 @@ def translate_document():
 
     file_ext = Path(uploaded_file.filename).suffix.lower()
     if file_ext not in ALLOWED_EXTENSIONS:
-        return jsonify({'error': 'Formato não permitido. Use PDF, DOCX ou PPTX.'}), 400
+        return jsonify({'error': 'Formato não permitido. Envie somente um arquivo PDF.'}), 400
     uploaded_file.seek(0, os.SEEK_END)
     file_size = uploaded_file.tell()
     uploaded_file.seek(0)
@@ -1013,8 +1012,6 @@ def translate_document():
         base_dir = tempfile.mkdtemp(prefix='tradutor-')
         file_path = os.path.join(base_dir, original_name)
         uploaded_file.save(file_path)
-        if file_ext in {'.docx', '.pptx'} and not zipfile.is_zipfile(file_path):
-            return jsonify({'error': 'O arquivo não é um documento válido para o formato selecionado.'}), 400
         try:
             pages = extract_document_pages(
                 file_path,
@@ -1026,7 +1023,12 @@ def translate_document():
             return jsonify({'error': str(exc)}), 422
         except Exception as exc:
             app.logger.exception('Could not read uploaded %s file', file_ext)
-            return jsonify({'error': 'Não foi possível ler o arquivo. Verifique se está íntegro e não protegido por senha.'}), 400
+            return jsonify({
+                'error': (
+                    'Não foi possível ler o PDF. Verifique se o arquivo está íntegro, '
+                    'não protegido por senha e se é um PDF válido.'
+                )
+            }), 400
         if not any(
             clean_text(block.get('text', ''))
             for page in pages

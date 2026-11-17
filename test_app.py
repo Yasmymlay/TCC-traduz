@@ -57,6 +57,20 @@ class TranslationApiTests(unittest.TestCase):
                 response = self.client.get(path)
                 self.assertEqual(response.status_code, 404)
 
+    def test_upload_form_advertises_pdf_only(self):
+        response = self.client.get('/')
+        self.addCleanup(response.close)
+        html = response.get_data(as_text=True)
+        file_inputs = [
+            line for line in html.splitlines()
+            if '<input type="file"' in line
+        ]
+        self.assertEqual(len(file_inputs), 1)
+        self.assertIn('accept=".pdf,application/pdf"', file_inputs[0])
+        self.assertNotIn('.docx', file_inputs[0].lower())
+        self.assertNotIn('.pptx', file_inputs[0].lower())
+        self.assertIn('Somente PDF', html)
+
     def test_downloads_open_and_preserve_translated_document_structure(self):
         pages = [
             {
@@ -311,7 +325,7 @@ class TranslationApiTests(unittest.TestCase):
         if not payload['available'] or payload.get('missing_languages'):
             self.assertTrue(payload.get('error'))
 
-    def test_extracts_each_supported_file_and_keeps_pages(self):
+    def test_extracts_sample_documents_and_keeps_pages(self):
         for name in ('sample.pdf', 'sample.docx', 'sample.pptx'):
             with self.subTest(name=name):
                 pages = app.extract_document_pages(str(FIXTURES / name), Path(name).suffix)
@@ -411,7 +425,7 @@ class TranslationApiTests(unittest.TestCase):
         ],
     )
     def test_translates_upload_using_selected_languages(self, _translate):
-        response = self.upload('sample.docx', (FIXTURES / 'sample.docx').read_bytes(), 'pt', 'es')
+        response = self.upload('sample.pdf', (FIXTURES / 'sample.pdf').read_bytes(), 'pt', 'es')
         self.assertEqual(response.status_code, 200, response.get_json())
         payload = response.get_json()
         self.assertEqual(payload['target_lang'], 'es')
@@ -423,21 +437,31 @@ class TranslationApiTests(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn('vazio', response.get_json()['error'])
 
-    def test_rejects_unsupported_format(self):
-        response = self.upload('notes.txt', b'content')
-        self.assertEqual(response.status_code, 400)
-        self.assertIn('Formato não permitido', response.get_json()['error'])
+    def test_rejects_non_pdf_uploads(self):
+        unsupported_files = (
+            ('notes.txt', b'content'),
+            ('sample.docx', (FIXTURES / 'sample.docx').read_bytes()),
+            ('sample.pptx', (FIXTURES / 'sample.pptx').read_bytes()),
+        )
+        for name, content in unsupported_files:
+            with self.subTest(name=name):
+                response = self.upload(name, content)
+                self.assertEqual(response.status_code, 400)
+                self.assertIn('Envie somente um arquivo PDF', response.get_json()['error'])
 
-    def test_rejects_corrupt_word_document(self):
-        response = self.upload('broken.docx', b'not a zip archive')
+    def test_rejects_non_pdf_content_with_pdf_extension(self):
+        content = (FIXTURES / 'sample.docx').read_bytes()
+        response = self.upload('renamed.pdf', content)
         self.assertEqual(response.status_code, 400)
-        self.assertIn('documento válido', response.get_json()['error'])
+        self.assertIn('PDF válido', response.get_json()['error'])
 
     def test_rejects_document_without_extractable_text(self):
-        document = Document()
-        content = io.BytesIO()
-        document.save(content)
-        response = self.upload('empty.docx', content.getvalue())
+        document = pymupdf.open()
+        document.new_page()
+        content = document.tobytes()
+        document.close()
+        with patch('app._check_ocr_ready'), patch('app._recognize_pdf_page', return_value=''):
+            response = self.upload('empty.pdf', content)
         self.assertEqual(response.status_code, 422)
         self.assertIn('Nenhum texto', response.get_json()['error'])
 
@@ -447,13 +471,13 @@ class TranslationApiTests(unittest.TestCase):
             side_effect=RuntimeError('Não foi possível conectar ao serviço de tradução.'),
         ):
             response = self.upload(
-                'sample.docx', (FIXTURES / 'sample.docx').read_bytes()
+                'sample.pdf', (FIXTURES / 'sample.pdf').read_bytes()
             )
         self.assertEqual(response.status_code, 503)
         self.assertIn('serviço de tradução', response.get_json()['error'])
 
     def test_rejects_same_source_and_target_language(self):
-        response = self.upload('sample.docx', (FIXTURES / 'sample.docx').read_bytes(), 'en', 'en')
+        response = self.upload('sample.pdf', (FIXTURES / 'sample.pdf').read_bytes(), 'en', 'en')
         self.assertEqual(response.status_code, 400)
         self.assertIn('idiomas diferentes', response.get_json()['error'])
 
@@ -564,39 +588,37 @@ class TranslationApiTests(unittest.TestCase):
         )
 
     def test_reports_duplicate_document_request(self):
-        content = (FIXTURES / 'sample.docx').read_bytes()
+        content = (FIXTURES / 'sample.pdf').read_bytes()
         digest = hashlib.sha256(content).hexdigest()
         key = f'pt:en:{digest}'
         with app.ACTIVE_TRANSLATIONS_LOCK:
             app.ACTIVE_TRANSLATIONS.add(key)
         try:
-            response = self.upload('sample.docx', content)
+            response = self.upload('sample.pdf', content)
         finally:
             with app.ACTIVE_TRANSLATIONS_LOCK:
                 app.ACTIVE_TRANSLATIONS.discard(key)
         self.assertEqual(response.status_code, 409)
 
-    def test_real_local_argos_fallback_translates_each_document_format(self):
+    def test_real_local_argos_fallback_translates_pdf_upload(self):
         argos = ArgosProvider()
         if not argos.supports('pt', 'en'):
             self.skipTest('pt->en Argos model is not installed')
         with patch('translation_engine.ENGINE', TranslationEngine([argos])):
-            for name in ('sample.pdf', 'sample.docx', 'sample.pptx'):
-                with self.subTest(name=name):
-                    response = self.upload(
-                        name,
-                        (FIXTURES / name).read_bytes(),
-                        'pt',
-                        'en',
-                    )
-                    self.assertEqual(response.status_code, 200, response.get_json())
-                    pages = response.get_json()['pages']
-                    self.assertTrue(pages)
-                    self.assertTrue(any(
-                        block['text'].strip()
-                        for page in pages
-                        for block in page['blocks']
-                    ))
+            response = self.upload(
+                'sample.pdf',
+                (FIXTURES / 'sample.pdf').read_bytes(),
+                'pt',
+                'en',
+            )
+        self.assertEqual(response.status_code, 200, response.get_json())
+        pages = response.get_json()['pages']
+        self.assertTrue(pages)
+        self.assertTrue(any(
+            block['text'].strip()
+            for page in pages
+            for block in page['blocks']
+        ))
 
     def test_real_libretranslate_connection_failure_falls_back_to_argos(self):
         argos = ArgosProvider()
@@ -610,8 +632,8 @@ class TranslationApiTests(unittest.TestCase):
         ])
         with patch('translation_engine.ENGINE', engine):
             response = self.upload(
-                'sample.docx',
-                (FIXTURES / 'sample.docx').read_bytes(),
+                'sample.pdf',
+                (FIXTURES / 'sample.pdf').read_bytes(),
                 'pt',
                 'en',
             )
@@ -621,8 +643,14 @@ class TranslationApiTests(unittest.TestCase):
             for page in response.get_json()['pages']
             for block in page['blocks']
         )
-        self.assertIn('Study Plan', translated)
-        self.assertNotIn('Plano de Estudos', translated)
+        source_pages = app.extract_document_pages(str(FIXTURES / 'sample.pdf'), '.pdf')
+        source_text = ' '.join(
+            block['text']
+            for page in source_pages
+            for block in page['blocks']
+        )
+        self.assertTrue(translated.strip())
+        self.assertNotEqual(translated.strip(), source_text.strip())
 
 
 if __name__ == '__main__':
