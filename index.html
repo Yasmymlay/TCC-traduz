@@ -206,12 +206,51 @@
                         </button>
                         <p class="privacidade-nota">
                             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="4" y="8.5" width="12" height="8" rx="2" stroke="currentColor" stroke-width="1.5" /><path d="M7 8.5V6a3 3 0 1 1 6 0v2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
-                            Seus arquivos são processados localmente.
+                            O texto segue o mecanismo de tradução configurado.
                         </p>
                     </div>
 
                     <div id="mensagem" class="mensagem" role="status" aria-live="polite">
                         Selecione um arquivo e configure os idiomas para começar.
+                    </div>
+                    <div id="statusMecanismos" class="status-mecanismos" role="status" aria-live="polite">
+                        Verificando mecanismos de tradução...
+                    </div>
+                    <div id="statusOCR" class="status-ocr" role="status" aria-live="polite">
+                        Verificando o reconhecimento de PDFs digitalizados...
+                    </div>
+                    <section class="argos-setup" aria-label="Instalação dos modelos Argos">
+                        <div>
+                            <strong>Modelos de tradução local</strong>
+                            <span>Consultar o catálogo online não baixa modelos; qualquer instalação exige uma confirmação separada.</span>
+                            <span id="statusModelosArgos" role="status" aria-live="polite">
+                                Verificando os modelos instalados...
+                            </span>
+                        </div>
+                        <button id="btnVerificarCatalogo" class="btn-demo" type="button">
+                            Consultar catálogo Argos
+                        </button>
+                        <button id="btnInstalarModelo" class="btn-demo" type="button" hidden>
+                            Instalar modelo
+                        </button>
+                    </section>
+
+                    <div class="demo-strip" aria-label="Modo de demonstração">
+                        <div>
+                            <strong>Demonstração offline</strong>
+                            <span>Veja um resultado preparado sem chamar os tradutores.</span>
+                        </div>
+                        <label for="demoFormato" class="demo-select-label">Exemplo
+                            <select id="demoFormato">
+                                <option value="pdf">PDF</option>
+                                <option value="docx">DOCX</option>
+                                <option value="pptx">PPTX</option>
+                            </select>
+                        </label>
+                        <button id="btnDemo" class="btn-demo" type="button">Carregar demonstração</button>
+                        <a id="linkDemoArquivo" class="btn-demo-arquivo" href="/tmp-docs/sample.pdf" download>
+                            Baixar arquivo de exemplo
+                        </a>
                     </div>
                 </section>
             </div>
@@ -240,6 +279,7 @@
                             <strong id="nomeResultado">Nenhum documento</strong>
                             <span><span id="formatoResultado">-</span><i></i><span id="idiomaResultado">Selecione os idiomas</span></span>
                         </div>
+                        <span id="seloDemo" class="selo-demo" hidden>DEMONSTRAÇÃO PREPARADA</span>
                         <div class="resultado-modo">
                             <span>ORGANIZAÇÃO</span>
                             <strong id="modoResultado">Tradução completa</strong>
@@ -281,9 +321,18 @@
                         <button id="btnNovo" class="btn-secundario">
                             <span aria-hidden="true">＋</span> Novo documento
                         </button>
+                        <label for="formatoDownload" class="formato-download">
+                            Formato
+                            <select id="formatoDownload">
+                                <option value="txt">TXT</option>
+                                <option value="docx">DOCX</option>
+                                <option value="pptx">PPTX</option>
+                                <option value="pdf">PDF</option>
+                            </select>
+                        </label>
                         <button id="btnBaixar" class="btn-secundario principal">
                             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 3v9m0 0 3.5-3.5M10 12 6.5 8.5M4 13v3a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                            Baixar tradução
+                            Baixar arquivo
                         </button>
                     </div>
                 </section>
