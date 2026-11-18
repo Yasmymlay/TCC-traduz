@@ -7,7 +7,7 @@ from unittest.mock import Mock, patch
 
 import requests
 
-from translation_engine import (
+from traduzedu.services.translation_engine import (
     ArgosProvider,
     DeepLProvider,
     LibreTranslateProvider,
@@ -86,9 +86,9 @@ class TranslationEngineTests(unittest.TestCase):
             with self.subTest(status=status):
                 provider = LibreTranslateProvider(['http://localhost:5000'], 1, 1, 2)
                 post_responses = [libre_response(status), libre_response(200)]
-                with patch('translation_engine.requests.get', return_value=languages), \
-                        patch('translation_engine.requests.post', side_effect=post_responses) as post, \
-                        patch('translation_engine.time.sleep'):
+                with patch('traduzedu.services.translation_engine.requests.get', return_value=languages), \
+                        patch('traduzedu.services.translation_engine.requests.post', side_effect=post_responses) as post, \
+                        patch('traduzedu.services.translation_engine.time.sleep'):
                     self.assertEqual(
                         provider.translate('Bom dia', 'pt', 'en'),
                         'Good morning',
@@ -101,8 +101,8 @@ class TranslationEngineTests(unittest.TestCase):
             {'code': 'en', 'targets': ['pt']},
         ])
         fallback = StubProvider(result='Good morning')
-        with patch('translation_engine.requests.get', return_value=languages), \
-                patch('translation_engine.requests.post', return_value=libre_response(400)) as post:
+        with patch('traduzedu.services.translation_engine.requests.get', return_value=languages), \
+                patch('traduzedu.services.translation_engine.requests.post', return_value=libre_response(400)) as post:
             result = TranslationEngine([
                 LibreTranslateProvider(['http://localhost:5000'], 1, 1, 3),
                 fallback,
@@ -113,7 +113,7 @@ class TranslationEngineTests(unittest.TestCase):
     def test_libretranslate_connection_error_falls_back(self):
         fallback = StubProvider(result='Good morning')
         with patch(
-            'translation_engine.requests.get',
+            'traduzedu.services.translation_engine.requests.get',
             side_effect=ConnectionError('offline'),
         ):
             result = TranslationEngine([
@@ -125,7 +125,7 @@ class TranslationEngineTests(unittest.TestCase):
     def test_libretranslate_caches_short_lived_outage_detection(self):
         provider = LibreTranslateProvider(['http://localhost:5000'], 0.1, 0.1, 1)
         with patch(
-            'translation_engine.requests.get',
+            'traduzedu.services.translation_engine.requests.get',
             side_effect=requests.ConnectionError('offline'),
         ) as get:
             for _ in range(2):
@@ -154,7 +154,7 @@ class TranslationEngineTests(unittest.TestCase):
         )
         response = Mock(status_code=200)
         response.json.return_value = {'translations': [{'text': 'Good morning'}]}
-        with patch('translation_engine.requests.post', return_value=response) as post:
+        with patch('traduzedu.services.translation_engine.requests.post', return_value=response) as post:
             self.assertEqual(provider.translate('Bom dia', 'pt', 'en'), 'Good morning')
         self.assertEqual(
             post.call_args.kwargs['headers']['Authorization'],
@@ -284,6 +284,20 @@ class TranslationEngineTests(unittest.TestCase):
                     self.assertTrue(translated.strip())
                     self.assertLessEqual(len(translated), 500)
                     self.assertNotEqual(translated, text)
+
+    def test_offline_sentencizer_falls_back_when_stanza_resources_are_incompatible(self):
+        from traduzedu.services.translation_engine import _OfflineStanzaSentencizer
+
+        package = SimpleNamespace(from_code='pt', package_path=Path('.'))
+        sentencizer = _OfflineStanzaSentencizer(package)
+        with patch('stanza.Pipeline', side_effect=KeyError('packages')):
+            sentences = sentencizer.split_sentences(
+                'Bom dia, turma. Hoje vamos ler um miniconto! Vocês gostam?\nSim.'
+            )
+        self.assertEqual(
+            sentences,
+            ['Bom dia, turma.', 'Hoje vamos ler um miniconto!', 'Vocês gostam?', 'Sim.'],
+        )
 
     def test_unknown_provider_configuration_fails_clearly(self):
         with patch.dict('os.environ', {'TRANSLATION_PROVIDERS': 'not-a-provider'}):

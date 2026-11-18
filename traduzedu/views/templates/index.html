@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
 <body>
@@ -236,17 +236,10 @@
                     <div class="demo-strip" aria-label="Modo de demonstração">
                         <div>
                             <strong>Demonstração offline</strong>
-                            <span>Veja um resultado preparado sem chamar os tradutores.</span>
+                            <span>Veja um PDF de exemplo já traduzido, sem chamar os tradutores.</span>
                         </div>
-                        <label for="demoFormato" class="demo-select-label">Exemplo
-                            <select id="demoFormato">
-                                <option value="pdf">PDF</option>
-                                <option value="docx">DOCX</option>
-                                <option value="pptx">PPTX</option>
-                            </select>
-                        </label>
                         <button id="btnDemo" class="btn-demo" type="button">Carregar demonstração</button>
-                        <a id="linkDemoArquivo" class="btn-demo-arquivo" href="/tmp-docs/sample.pdf" download>
+                        <a id="linkDemoArquivo" class="btn-demo-arquivo" href="{{ url_for('static', filename='exemplos/sample.pdf') }}" download>
                             Baixar arquivo de exemplo
                         </a>
                     </div>
@@ -322,10 +315,7 @@
                         <label for="formatoDownload" class="formato-download">
                             Formato
                             <select id="formatoDownload">
-                                <option value="txt">TXT</option>
-                                <option value="docx">DOCX</option>
-                                <option value="pptx">PPTX</option>
-                                <option value="pdf">PDF</option>
+                                <option value="pdf-layout" selected>PDF traduzido</option>
                             </select>
                         </label>
                         <button id="btnBaixar" class="btn-secundario principal">
@@ -360,7 +350,10 @@
         </div>
     </footer>
 
-    <script src="script.js"></script>
+    <!-- Frontend em MVC: model (estado + API), view (DOM) e controller (eventos) -->
+    <script src="{{ url_for('static', filename='js/model.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/view.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/controller.js') }}"></script>
 </body>
 
 </html>

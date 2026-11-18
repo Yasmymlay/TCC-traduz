@@ -77,11 +77,21 @@ if defined LIBRETRANSLATE_EXE (
 
 powershell -NoProfile -Command "try { $null = Invoke-RestMethod -Uri 'http://127.0.0.1:5001/api/health' -TimeoutSec 2; exit 0 } catch { exit 1 }" >nul 2>nul
 if errorlevel 1 (
+    netstat -ano | findstr /R /C:"127.0.0.1:5001 .*LISTENING" >nul
+    if not errorlevel 1 (
+        echo A porta 5001 esta ocupada por um servidor que nao responde.
+        echo Feche a janela antiga "Tradutor de Aulas" ou encerre o processo python no Gerenciador de Tarefas.
+        echo Depois execute iniciar.bat novamente.
+        pause
+        exit /b 1
+    )
     echo Iniciando o aplicativo web...
-    start "Tradutor de Aulas" "%APP_PYTHON%" "%~dp0app.py"
+    rem A saida vai para logs\servidor.log: clicar na janela do console nao congela mais o servidor.
+    if not exist "%~dp0logs" mkdir "%~dp0logs"
+    start "Tradutor de Aulas" /min cmd /c ""%APP_PYTHON%" "%~dp0app.py" >> "%~dp0logs\servidor.log" 2>&1"
     powershell -NoProfile -Command "$deadline = (Get-Date).AddSeconds(30); do { try { $null = Invoke-RestMethod -Uri 'http://127.0.0.1:5001/api/health' -TimeoutSec 2; exit 0 } catch { Start-Sleep -Seconds 1 } } while ((Get-Date) -lt $deadline); exit 1"
     if errorlevel 1 (
-        echo O aplicativo web nao iniciou. Verifique as dependencias e a janela do Tradutor de Aulas.
+        echo O aplicativo web nao iniciou. Veja os erros em logs\servidor.log.
         pause
         exit /b 1
     )

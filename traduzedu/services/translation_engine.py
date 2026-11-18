@@ -1,5 +1,12 @@
+"""Motor de tradução com fallback entre provedores (seção 6.3 da documentação).
+
+A ordem padrão é LibreTranslate (API local), Argos Translate (modelos offline)
+e DeepL (API externa opcional). O primeiro provedor que suportar o par de
+idiomas e responder corretamente é usado.
+"""
 import logging
 import os
+import re
 import time
 from pathlib import Path
 from threading import Lock
@@ -7,9 +14,9 @@ from urllib.parse import urlparse
 
 import requests
 
+from ..models.language import SUPPORTED_LANGS as LANGUAGES
 
 LOGGER = logging.getLogger(__name__)
-LANGUAGES = {'pt', 'en', 'es'}
 
 
 class TranslationError(RuntimeError):
@@ -19,7 +26,23 @@ class TranslationError(RuntimeError):
 class UnsupportedLanguagePair(TranslationError):
     pass
 
+
+_SENTENCE_BOUNDARY = re.compile(r'(?<=[.!?…])\s+|\n+')
+
+
+def _split_sentences_by_punctuation(text):
+    return [part.strip() for part in _SENTENCE_BOUNDARY.split(text) if part.strip()]
+
+
 class _OfflineStanzaSentencizer:
+    """Divide o texto em frases sem acessar a internet.
+
+    Usa o tokenizador Stanza que vem dentro do pacote Argos. Se o Stanza
+    instalado não conseguir ler esses recursos (por exemplo, o stanza 1.10 com
+    o resources.json antigo dos modelos pt, que gera KeyError 'packages'), a
+    divisão passa a ser feita pela pontuação, e a tradução continua funcionando.
+    """
+
     def __init__(self, model_package):
         self.pkg = model_package
         self.stanza_lang_code = {'zt': 'zh-hant', 'pb': 'pt'}.get(
@@ -27,6 +50,7 @@ class _OfflineStanzaSentencizer:
             model_package.from_code,
         )
         self.stanza_pipeline = None
+        self.use_fallback = False
 
     def lazy_pipeline(self):
         if self.stanza_pipeline is None:
@@ -43,8 +67,20 @@ class _OfflineStanzaSentencizer:
         return self.stanza_pipeline
 
     def split_sentences(self, text):
-        document = self.lazy_pipeline()(text)
-        return [sentence.text for sentence in document.sentences]
+        if not self.use_fallback:
+            try:
+                pipeline = self.lazy_pipeline()
+            except Exception as exc:
+                LOGGER.warning(
+                    'Stanza could not load the tokenizer bundled with the Argos %s '
+                    'model (%r); splitting sentences by punctuation instead.',
+                    self.stanza_lang_code,
+                    exc,
+                )
+                self.use_fallback = True
+            else:
+                return [sentence.text for sentence in pipeline(text).sentences]
+        return _split_sentences_by_punctuation(text)
 
 
 def _positive_float(name, default, minimum=0.1, maximum=300.0):
@@ -130,7 +166,10 @@ class LibreTranslateProvider:
             self._languages_error = (
                 f'LibreTranslate indisponível: {last_error or "nenhum endpoint configurado"}.'
             )
-            self._languages_expires_at = time.monotonic() + 10
+            # Falha fica em cache por 60 s: neste Windows a conexão a uma porta
+            # fechada espera o timeout em vez de ser recusada, e verificar de novo
+            # a cada lote atrasava muito a tradução pelo Argos.
+            self._languages_expires_at = time.monotonic() + 60
             raise TranslationError(self._languages_error)
 
     def supports(self, source, target):
@@ -304,21 +343,6 @@ class ArgosProvider:
         if sentencizer is not None and type(sentencizer).__name__ == 'StanzaSentencizer':
             package_translation.sentencizer = _OfflineStanzaSentencizer(package_translation.pkg)
         return translation
-
-    @staticmethod
-    def _is_pathological_output(source_text, translated_text):
-        translated_text = translated_text.strip()
-        if not translated_text:
-            return True
-        if len(translated_text) > max(500, len(source_text) * 20):
-            return True
-
-        prefix = translated_text[:256]
-        for width in range(2, min(32, len(prefix) // 8) + 1):
-            repeated = translated_text[:width]
-            if translated_text.startswith(repeated * 8):
-                return True
-        return False
 
     def _translation_path(self, languages, source, target):
         source_language = next((language for language in languages if language.code == source), None)

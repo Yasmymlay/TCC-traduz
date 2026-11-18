@@ -1,11 +1,25 @@
-# Tradutor de Aulas
+# Tradutor de Aulas (TraduzEdu)
 
 Aplicação local Flask para extrair texto de arquivos PDF, traduzir para
-português, inglês ou espanhol e visualizar/baixar o resultado em TXT, DOCX,
-PPTX ou PDF.
+português, inglês ou espanhol, visualizar o resultado e baixar o PDF
+traduzido.
 
-O envio para tradução aceita somente arquivos PDF. Os formatos de download
-continuam sendo TXT, DOCX, PPTX e PDF.
+O envio para tradução aceita somente arquivos PDF. O download é o
+**próprio PDF traduzido, com o mesmo layout**: fundos, imagens, cores e
+posições ficam iguais e só o texto muda.
+
+## Organização do código (MVC)
+
+O código está no pacote `traduzedu/`, organizado em Model-View-Controller:
+
+- `traduzedu/models/`: estrutura do documento, idiomas e regras de texto
+- `traduzedu/views/`: `templates/index.html` e `static/` (CSS, JS e exemplos)
+- `traduzedu/controllers/`: rotas Flask (Blueprints)
+- `traduzedu/services/`: extração, OCR, tradução e exportação
+
+O frontend segue a mesma divisão: `static/js/model.js`, `view.js` e
+`controller.js`. Os detalhes e o fluxo completo estão em
+[docs/ARQUITETURA.md](docs/ARQUITETURA.md).
 
 ## Instalação e execução no Windows
 
@@ -45,7 +59,9 @@ arquivos de exemplo ficam disponíveis pelo navegador.
 
 O inicializador inicia o LibreTranslate local, se estiver instalado. O
 aplicativo pode continuar sem ele e tenta Argos Translate como alternativa.
-Mantenha aberta a janela do servidor do aplicativo; a janela do LibreTranslate
+O servidor do aplicativo roda numa janela minimizada "Tradutor de Aulas"; mantenha-a
+aberta. As mensagens do servidor vão para `logs\servidor.log` (e não para a janela),
+então clicar na janela não congela mais o servidor. A janela do LibreTranslate
 só é necessária enquanto esse mecanismo estiver sendo usado. Modelos Argos
 instalados pelo próprio Argos são detectados automaticamente. O aplicativo não
 baixa modelos Argos ao iniciar.
@@ -100,7 +116,7 @@ Test-Path $tesseract
 & $tesseract --list-langs
 ```
 
-O resultado deve incluir `por`. O `app.py` localiza automaticamente o executável
+O resultado deve incluir `por`. O aplicativo (`traduzedu/services/ocr.py`) localiza automaticamente o executável
 no PATH ou no caminho padrão acima. Se instalou em outro local, configure a
 variável antes de iniciar o aplicativo:
 
@@ -115,7 +131,7 @@ real — e não apenas a instalação — execute o teste que cria um PDF compos
 somente por imagem, com palavras acentuadas, e chama o Tesseract sem mocks:
 
 ```powershell
-.\.venv\Scripts\python.exe -m unittest -v test_app.TranslationApiTests.test_real_ocr_recognizes_portuguese_accents_in_scanned_pdf
+.\.venv\Scripts\python.exe -m unittest -v tests.test_app.TranslationApiTests.test_real_ocr_recognizes_portuguese_accents_in_scanned_pdf
 ```
 
 Se Tesseract ou `por` estiver ausente, o teste será marcado como ignorado; isso
@@ -153,29 +169,41 @@ detectados. `GET /api/health` verifica apenas se o aplicativo está ativo.
 
 ## Demonstração
 
-Use “Carregar demonstração” na página e selecione PDF, DOCX ou PPTX. Esses
-formatos são exemplos com resultados pré-preparados, não arquivos enviados para
-tradução ao vivo. O envio para tradução continua aceitando somente PDF. A
-demonstração permanece disponível quando os mecanismos de tradução estão desligados.
+Use “Carregar demonstração” na página para ver o PDF de exemplo
+(`traduzedu/views/static/exemplos/sample.pdf`) já traduzido para o espanhol. O
+resultado fica pronto em `traduzedu/data/demo_results.json`, então a demonstração
+funciona mesmo com os mecanismos de tradução desligados. “Baixar arquivo de
+exemplo” baixa o PDF original para testar a tradução de verdade.
 
 ## Formatos e limitações
 
 - Somente arquivos PDF podem ser enviados, com limite de 10 MB.
-- Os downloads TXT, DOCX, PPTX e PDF preservam páginas/slides, títulos,
-  parágrafos, listas e linhas de tabela quando identificados. São documentos
-  reconstruídos; não prometem manter o tema, as imagens ou o posicionamento
-  exato do arquivo original.
-- O texto de tabelas é preservado em linhas/células, e as páginas/slides mantêm
-  a separação. No PPTX, os blocos de texto são ordenados pela posição visual
-  (de cima para baixo e da esquerda para a direita).
+- O “PDF traduzido” troca o texto no próprio PDF enviado. Texto
+  que faz parte de uma imagem (rótulos desenhados, páginas digitalizadas) não é
+  trocado, e uma tradução mais longa que o original pode usar uma fonte um pouco
+  menor para caber. O arquivo fica disponível por 1 hora depois da tradução.
 - PDFs compostos por imagens precisam do Tesseract e dos dados do idioma original
-  para usar o OCR. Sem eles, o sistema informa o que está faltando.
+  para usar o OCR. Sem eles, páginas sem texto selecionável ficam sem tradução e
+  o sistema avisa quais foram; se nenhuma página tiver texto, a tradução é recusada
+  com a explicação do que está faltando.
 - Imagens e elementos visuais não textuais não são traduzidos.
+
+## Problemas comuns
+
+- **"O tempo de espera da tradução foi excedido"**: quase sempre é um servidor
+  antigo travado ocupando a porta 5001. Feche a janela "Tradutor de Aulas" (ou
+  encerre o processo `python` no Gerenciador de Tarefas) e execute `iniciar.bat`
+  de novo. O inicializador e o `app.py` agora avisam quando a porta está ocupada.
+- **"Todos os mecanismos configurados falharam"**: nenhum tradutor está
+  instalado. Em “Modelos de tradução local”, escolha o par (por exemplo,
+  Português → Espanhol), clique em “Consultar catálogo Argos” e depois em
+  “Instalar”. O download é feito uma vez só.
+- Detalhes de erros do servidor ficam em `logs\servidor.log`.
 
 ## Diagnóstico e testes
 
 ```powershell
-.\.venv\Scripts\python.exe -m unittest -v
+.\.venv\Scripts\python.exe -m unittest discover -v -s tests -t .
 ```
 
 Os testes verificam extração, validação, traduções, demonstração offline,
