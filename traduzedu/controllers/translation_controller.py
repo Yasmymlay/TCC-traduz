@@ -160,7 +160,8 @@ def _extract_and_translate(file_path, file_ext, source_lang, target_lang):
         logger.exception('Could not translate uploaded %s file', file_ext)
         return None, (jsonify({'error': str(exc)}), 503)
 
-    return translated_pages, None
+    warning = extraction.skipped_pages_warning(pages)
+    return (translated_pages, [warning] if warning else []), None
 
 
 @translation_bp.route('/translate', methods=['POST'])
@@ -185,7 +186,7 @@ def translate_document():
         with tempfile.TemporaryDirectory(prefix='tradutor-') as base_dir:
             file_path = os.path.join(base_dir, original_name)
             uploaded_file.save(file_path)
-            translated_pages, error = _extract_and_translate(
+            result, error = _extract_and_translate(
                 file_path, file_ext, source_lang, target_lang
             )
     finally:
@@ -194,9 +195,11 @@ def translate_document():
 
     if error:
         return error
+    translated_pages, warnings = result
     return jsonify({
         'filename': original_name,
         'source_lang': source_lang,
         'target_lang': target_lang,
         'pages': translated_pages,
+        'warnings': warnings,
     })

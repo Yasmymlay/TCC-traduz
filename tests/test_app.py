@@ -19,7 +19,8 @@ from traduzedu.services import export, extraction, ocr, translation
 from traduzedu.services.translation_engine import ArgosProvider, TranslationEngine
 
 
-FIXTURES = config.EXAMPLES_DIR
+FIXTURES = Path(__file__).parent / 'fixtures'
+EXAMPLE_PDF = config.EXAMPLES_DIR / 'sample.pdf'
 
 
 class TranslationApiTests(unittest.TestCase):
@@ -41,8 +42,7 @@ class TranslationApiTests(unittest.TestCase):
 
     def test_only_public_site_assets_and_demo_files_are_served(self):
         for path in ('/static/css/style.css', '/static/js/model.js', '/static/js/view.js',
-                     '/static/js/controller.js', '/static/exemplos/sample.pdf',
-                     '/static/exemplos/sample.docx', '/static/exemplos/sample.pptx'):
+                     '/static/js/controller.js', '/static/exemplos/sample.pdf'):
             with self.subTest(path=path):
                 response = self.client.get(path)
                 self.addCleanup(response.close)
@@ -57,6 +57,8 @@ class TranslationApiTests(unittest.TestCase):
             '/static/../services/translation_engine.py',
             '/static/../../app.py',
             '/script.js',
+            '/static/exemplos/sample.docx',
+            '/static/exemplos/sample.pptx',
         ):
             with self.subTest(path=path):
                 response = self.client.get(path)
@@ -286,6 +288,36 @@ class TranslationApiTests(unittest.TestCase):
         self.assertEqual(response.status_code, 422)
         self.assertIn('Tesseract OCR', response.get_json()['error'])
 
+    @patch('traduzedu.services.ocr.ocr_status', return_value={
+        'available': False,
+        'languages': [],
+        'error': 'Instale o Tesseract OCR para reconhecer este PDF.',
+    })
+    @patch(
+        'traduzedu.services.translation.translate_texts',
+        side_effect=lambda texts, source, target, deadline=None: [
+            f'{target}: {text}' for text in texts
+        ],
+    )
+    def test_pages_without_text_are_skipped_when_ocr_is_unavailable(self, _translate, _status):
+        text_pdf = export.export_pdf([{
+            'page_title': '', 'title': '', 'subtitle': '',
+            'blocks': [{'type': 'paragraph', 'text': 'Texto da primeira página.'}],
+        }])
+        document = pymupdf.open(stream=text_pdf, filetype='pdf')
+        document.new_page()
+        content = document.tobytes()
+        document.close()
+
+        response = self.upload('misto.pdf', content, 'pt', 'es')
+
+        self.assertEqual(response.status_code, 200, response.get_json())
+        payload = response.get_json()
+        self.assertEqual(len(payload['pages']), 2)
+        self.assertIn('Texto da primeira', payload['pages'][0]['blocks'][-1]['text'])
+        self.assertEqual(payload['pages'][1]['blocks'], [])
+        self.assertTrue(any('2' in warning for warning in payload['warnings']))
+
     def test_real_ocr_recognizes_scanned_pdf_when_tesseract_language_is_installed(self):
         status = ocr.ocr_status('en')
         if not status['available'] or status.get('missing_languages'):
@@ -331,9 +363,10 @@ class TranslationApiTests(unittest.TestCase):
             self.assertTrue(payload.get('error'))
 
     def test_extracts_sample_documents_and_keeps_pages(self):
-        for name in ('sample.pdf', 'sample.docx', 'sample.pptx'):
+        for path in (EXAMPLE_PDF, FIXTURES / 'sample.docx', FIXTURES / 'sample.pptx'):
+            name = path.name
             with self.subTest(name=name):
-                pages = extraction.extract_document_pages(str(FIXTURES / name), Path(name).suffix)
+                pages = extraction.extract_document_pages(str(path), path.suffix)
                 self.assertTrue(pages)
                 if name.endswith('.pdf'):
                     self.assertTrue(all(page['page_title'].startswith('Página ') for page in pages))
@@ -430,7 +463,7 @@ class TranslationApiTests(unittest.TestCase):
         ],
     )
     def test_translates_upload_using_selected_languages(self, _translate):
-        response = self.upload('sample.pdf', (FIXTURES / 'sample.pdf').read_bytes(), 'pt', 'es')
+        response = self.upload('sample.pdf', EXAMPLE_PDF.read_bytes(), 'pt', 'es')
         self.assertEqual(response.status_code, 200, response.get_json())
         payload = response.get_json()
         self.assertEqual(payload['target_lang'], 'es')
@@ -476,13 +509,13 @@ class TranslationApiTests(unittest.TestCase):
             side_effect=RuntimeError('Não foi possível conectar ao serviço de tradução.'),
         ):
             response = self.upload(
-                'sample.pdf', (FIXTURES / 'sample.pdf').read_bytes()
+                'sample.pdf', EXAMPLE_PDF.read_bytes()
             )
         self.assertEqual(response.status_code, 503)
         self.assertIn('serviço de tradução', response.get_json()['error'])
 
     def test_rejects_same_source_and_target_language(self):
-        response = self.upload('sample.pdf', (FIXTURES / 'sample.pdf').read_bytes(), 'en', 'en')
+        response = self.upload('sample.pdf', EXAMPLE_PDF.read_bytes(), 'en', 'en')
         self.assertEqual(response.status_code, 400)
         self.assertIn('idiomas diferentes', response.get_json()['error'])
 
@@ -492,7 +525,7 @@ class TranslationApiTests(unittest.TestCase):
 
     @patch('traduzedu.services.translation.translate_texts', side_effect=AssertionError('demo must not translate'))
     def test_demo_results_are_available_without_calling_translation(self, _translate):
-        for format_name in ('pdf', 'docx', 'pptx'):
+        for format_name in ('pdf',):
             with self.subTest(format=format_name):
                 response = self.client.get(f'/api/demo/{format_name}')
                 self.assertEqual(response.status_code, 200)
@@ -500,8 +533,17 @@ class TranslationApiTests(unittest.TestCase):
                 self.assertTrue(response.get_json()['pages'])
 
     def test_demo_rejects_unknown_format(self):
-        response = self.client.get('/api/demo/rtf')
-        self.assertEqual(response.status_code, 404)
+        for format_name in ('rtf', 'docx', 'pptx'):
+            with self.subTest(format=format_name):
+                response = self.client.get(f'/api/demo/{format_name}')
+                self.assertEqual(response.status_code, 404)
+
+    def test_page_offers_only_the_pdf_demo(self):
+        response = self.client.get('/')
+        self.addCleanup(response.close)
+        html = response.get_data(as_text=True)
+        self.assertNotIn('id="demoFormato"', html)
+        self.assertIn('exemplos/sample.pdf', html)
 
     @patch(
         'traduzedu.services.translation_engine.provider_status',
@@ -593,7 +635,7 @@ class TranslationApiTests(unittest.TestCase):
         )
 
     def test_reports_duplicate_document_request(self):
-        content = (FIXTURES / 'sample.pdf').read_bytes()
+        content = EXAMPLE_PDF.read_bytes()
         digest = hashlib.sha256(content).hexdigest()
         key = f'pt:en:{digest}'
         self.assertTrue(translation.ACTIVE_TRANSLATIONS.try_acquire(key))
@@ -610,7 +652,7 @@ class TranslationApiTests(unittest.TestCase):
         with patch('traduzedu.services.translation_engine.ENGINE', TranslationEngine([argos])):
             response = self.upload(
                 'sample.pdf',
-                (FIXTURES / 'sample.pdf').read_bytes(),
+                EXAMPLE_PDF.read_bytes(),
                 'pt',
                 'en',
             )
@@ -636,7 +678,7 @@ class TranslationApiTests(unittest.TestCase):
         with patch('traduzedu.services.translation_engine.ENGINE', engine):
             response = self.upload(
                 'sample.pdf',
-                (FIXTURES / 'sample.pdf').read_bytes(),
+                EXAMPLE_PDF.read_bytes(),
                 'pt',
                 'en',
             )
@@ -646,7 +688,7 @@ class TranslationApiTests(unittest.TestCase):
             for page in response.get_json()['pages']
             for block in page['blocks']
         )
-        source_pages = extraction.extract_document_pages(str(FIXTURES / 'sample.pdf'), '.pdf')
+        source_pages = extraction.extract_document_pages(str(EXAMPLE_PDF), '.pdf')
         source_text = ' '.join(
             block['text']
             for page in source_pages
@@ -654,6 +696,20 @@ class TranslationApiTests(unittest.TestCase):
         )
         self.assertTrue(translated.strip())
         self.assertNotEqual(translated.strip(), source_text.strip())
+
+
+class ServerStartupTests(unittest.TestCase):
+    def test_detects_port_already_taken_by_another_server(self):
+        import socket
+        from traduzedu.server import port_in_use
+
+        with socket.socket() as existing:
+            existing.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            existing.bind(('127.0.0.1', 0))
+            existing.listen()
+            port = existing.getsockname()[1]
+            self.assertTrue(port_in_use('127.0.0.1', port))
+        self.assertFalse(port_in_use('127.0.0.1', port))
 
 
 class DocumentModelTests(unittest.TestCase):

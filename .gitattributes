@@ -1,0 +1,6 @@
+# Arquivos binarios: o Git nao deve converter quebras de linha
+*.pdf binary
+*.docx binary
+*.pptx binary
+*.png binary
+*.jpg binary

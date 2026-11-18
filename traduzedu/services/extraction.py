@@ -63,7 +63,14 @@ def _ocr_page_text(file_path, page_number, total_pages, source_lang, state):
 
 
 def extract_pdf_document(file_path: str, source_lang='pt'):
+    """Extrai o texto página a página.
+
+    Páginas sem texto selecionável passam pelo OCR. Se o OCR falhar numa página,
+    ela fica vazia e recebe 'ocr_error', para não perder o restante do material.
+    Só quando nenhuma página tem texto o erro do OCR é repassado.
+    """
     pages = []
+    first_ocr_error = None
     state = {'rendered_pdf': None, 'deadline': None}
     try:
         with open(file_path, 'rb') as pdf_file:
@@ -71,16 +78,45 @@ def extract_pdf_document(file_path: str, source_lang='pt'):
             total_pages = len(reader.pages)
             for page_number, page in enumerate(reader.pages, start=1):
                 text = clean_text(page.extract_text() or '')
+                page_data = {'page_title': f'Página {page_number}'}
                 if not text:
-                    text = _ocr_page_text(file_path, page_number, total_pages, source_lang, state)
-                pages.append({
-                    'page_title': f'Página {page_number}',
-                    'blocks': _paragraph_blocks(text),
-                })
+                    try:
+                        text = _ocr_page_text(
+                            file_path, page_number, total_pages, source_lang, state
+                        )
+                    except ocr.OCRProcessingError as exc:
+                        first_ocr_error = first_ocr_error or exc
+                        page_data['ocr_error'] = str(exc)
+                        text = ''
+                page_data['blocks'] = _paragraph_blocks(text)
+                pages.append(page_data)
     finally:
         if state['rendered_pdf'] is not None:
             state['rendered_pdf'].close()
+
+    if first_ocr_error is not None and not any(page['blocks'] for page in pages):
+        raise first_ocr_error
     return pages
+
+
+def skipped_pages_warning(pages):
+    """Mensagem para o professor sobre páginas que ficaram sem texto."""
+    skipped = [
+        page['page_title'].replace('Página ', '')
+        for page in pages
+        if page.get('ocr_error')
+    ]
+    if not skipped:
+        return None
+    if len(skipped) == 1:
+        return (
+            f'A página {skipped[0]} não tem texto selecionável (provavelmente é uma '
+            'imagem) e o OCR não está disponível, então ficou sem tradução.'
+        )
+    return (
+        f'As páginas {", ".join(skipped)} não têm texto selecionável (provavelmente são '
+        'imagens) e o OCR não está disponível, então ficaram sem tradução.'
+    )
 
 
 def _word_paragraph_type(paragraph):

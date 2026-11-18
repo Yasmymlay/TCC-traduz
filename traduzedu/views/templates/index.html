@@ -236,15 +236,8 @@
                     <div class="demo-strip" aria-label="Modo de demonstração">
                         <div>
                             <strong>Demonstração offline</strong>
-                            <span>Veja um resultado preparado sem chamar os tradutores.</span>
+                            <span>Veja um PDF de exemplo já traduzido, sem chamar os tradutores.</span>
                         </div>
-                        <label for="demoFormato" class="demo-select-label">Exemplo
-                            <select id="demoFormato">
-                                <option value="pdf">PDF</option>
-                                <option value="docx">DOCX</option>
-                                <option value="pptx">PPTX</option>
-                            </select>
-                        </label>
                         <button id="btnDemo" class="btn-demo" type="button">Carregar demonstração</button>
                         <a id="linkDemoArquivo" class="btn-demo-arquivo" href="{{ url_for('static', filename='exemplos/sample.pdf') }}" download>
                             Baixar arquivo de exemplo

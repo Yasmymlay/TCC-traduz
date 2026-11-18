@@ -26,8 +26,6 @@ const TraduzEduView = (() => {
         btnProximo: $("btnProximo"),
         contadorSlides: $("contadorSlides"),
         btnDemo: $("btnDemo"),
-        demoFormato: $("demoFormato"),
-        linkDemoArquivo: $("linkDemoArquivo"),
         seloDemo: $("seloDemo"),
         statusMecanismos: $("statusMecanismos"),
         statusOCR: $("statusOCR"),
@@ -289,12 +287,6 @@ const TraduzEduView = (() => {
         setTimeout(() => URL.revokeObjectURL(url), 1000);
     }
 
-    function atualizarLinkDemo() {
-        if (el.linkDemoArquivo && el.demoFormato) {
-            el.linkDemoArquivo.href = `/static/exemplos/sample.${encodeURIComponent(el.demoFormato.value)}`;
-        }
-    }
-
     return {
         el,
         parIdiomas,
@@ -316,7 +308,6 @@ const TraduzEduView = (() => {
         definirTraduzindo,
         definirBotao,
         definirBaixando,
-        salvarArquivo,
-        atualizarLinkDemo
+        salvarArquivo
     };
 })();

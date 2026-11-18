@@ -1,0 +1,31 @@
+{
+  "pdf": {
+    "filename": "sample.pdf",
+    "source_lang": "pt",
+    "target_lang": "es",
+    "pages": [
+      {
+        "page_title": "Página 1",
+        "title": "",
+        "subtitle": "",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "Introducción a la química\nLa química estudia la materia, sus propiedades y las transformaciones que sufre.\nConceptos importantes de esta clase:\n1. Reacción química: proceso en el que las sustancias se transforman en otras.\n2. Molécula: menor parte de una sustancia que mantiene sus propiedades."
+          }
+        ]
+      },
+      {
+        "page_title": "Página 2",
+        "title": "",
+        "subtitle": "",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "Actividad\nObserve la cocina de su casa y anote dos ejemplos de reacciones químicas del día a día."
+          }
+        ]
+      }
+    ]
+  }
+}

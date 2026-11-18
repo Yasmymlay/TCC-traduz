@@ -58,7 +58,9 @@ arquivos de exemplo ficam disponíveis pelo navegador.
 
 O inicializador inicia o LibreTranslate local, se estiver instalado. O
 aplicativo pode continuar sem ele e tenta Argos Translate como alternativa.
-Mantenha aberta a janela do servidor do aplicativo; a janela do LibreTranslate
+O servidor do aplicativo roda numa janela minimizada "Tradutor de Aulas"; mantenha-a
+aberta. As mensagens do servidor vão para `logs\servidor.log` (e não para a janela),
+então clicar na janela não congela mais o servidor. A janela do LibreTranslate
 só é necessária enquanto esse mecanismo estiver sendo usado. Modelos Argos
 instalados pelo próprio Argos são detectados automaticamente. O aplicativo não
 baixa modelos Argos ao iniciar.
@@ -166,10 +168,11 @@ detectados. `GET /api/health` verifica apenas se o aplicativo está ativo.
 
 ## Demonstração
 
-Use “Carregar demonstração” na página e selecione PDF, DOCX ou PPTX. Esses
-formatos são exemplos com resultados pré-preparados, não arquivos enviados para
-tradução ao vivo. O envio para tradução continua aceitando somente PDF. A
-demonstração permanece disponível quando os mecanismos de tradução estão desligados.
+Use “Carregar demonstração” na página para ver o PDF de exemplo
+(`traduzedu/views/static/exemplos/sample.pdf`) já traduzido para o espanhol. O
+resultado fica pronto em `traduzedu/data/demo_results.json`, então a demonstração
+funciona mesmo com os mecanismos de tradução desligados. “Baixar arquivo de
+exemplo” baixa o PDF original para testar a tradução de verdade.
 
 ## Formatos e limitações
 
@@ -182,17 +185,28 @@ demonstração permanece disponível quando os mecanismos de tradução estão d
   a separação. No PPTX, os blocos de texto são ordenados pela posição visual
   (de cima para baixo e da esquerda para a direita).
 - PDFs compostos por imagens precisam do Tesseract e dos dados do idioma original
-  para usar o OCR. Sem eles, o sistema informa o que está faltando.
+  para usar o OCR. Sem eles, páginas sem texto selecionável ficam sem tradução e
+  o sistema avisa quais foram; se nenhuma página tiver texto, a tradução é recusada
+  com a explicação do que está faltando.
 - Imagens e elementos visuais não textuais não são traduzidos.
+
+## Problemas comuns
+
+- **"O tempo de espera da tradução foi excedido"**: quase sempre é um servidor
+  antigo travado ocupando a porta 5001. Feche a janela "Tradutor de Aulas" (ou
+  encerre o processo `python` no Gerenciador de Tarefas) e execute `iniciar.bat`
+  de novo. O inicializador e o `app.py` agora avisam quando a porta está ocupada.
+- **"Todos os mecanismos configurados falharam"**: nenhum tradutor está
+  instalado. Em “Modelos de tradução local”, escolha o par (por exemplo,
+  Português → Espanhol), clique em “Consultar catálogo Argos” e depois em
+  “Instalar”. O download é feito uma vez só.
+- Detalhes de erros do servidor ficam em `logs\servidor.log`.
 
 ## Diagnóstico e testes
 
 ```powershell
 .\.venv\Scripts\python.exe -m unittest discover -v -s tests -t .
 ```
-
-Os testes de demonstração precisam de `traduzedu/data/demo_results.json`, que
-não está no repositório; sem ele, esses testes falham.
 
 Os testes verificam extração, validação, traduções, demonstração offline,
 geração e leitura dos formatos de download, status dos modelos e o fluxo OCR

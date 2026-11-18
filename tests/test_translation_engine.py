@@ -285,6 +285,20 @@ class TranslationEngineTests(unittest.TestCase):
                     self.assertLessEqual(len(translated), 500)
                     self.assertNotEqual(translated, text)
 
+    def test_offline_sentencizer_falls_back_when_stanza_resources_are_incompatible(self):
+        from traduzedu.services.translation_engine import _OfflineStanzaSentencizer
+
+        package = SimpleNamespace(from_code='pt', package_path=Path('.'))
+        sentencizer = _OfflineStanzaSentencizer(package)
+        with patch('stanza.Pipeline', side_effect=KeyError('packages')):
+            sentences = sentencizer.split_sentences(
+                'Bom dia, turma. Hoje vamos ler um miniconto! Vocês gostam?\nSim.'
+            )
+        self.assertEqual(
+            sentences,
+            ['Bom dia, turma.', 'Hoje vamos ler um miniconto!', 'Vocês gostam?', 'Sim.'],
+        )
+
     def test_unknown_provider_configuration_fails_clearly(self):
         with patch.dict('os.environ', {'TRANSLATION_PROVIDERS': 'not-a-provider'}):
             with self.assertRaisesRegex(ValueError, 'desconhecidos'):

@@ -165,7 +165,10 @@
         try {
             const payload = await model.traduzir(arquivo, origem, destino);
             exibirResultado(payload);
-            view.mostrarMensagem("✅ Tradução concluída!");
+            const avisos = payload.warnings || [];
+            view.mostrarMensagem(
+                avisos.length ? `✅ Tradução concluída. ⚠️ ${avisos.join(" ")}` : "✅ Tradução concluída!"
+            );
             view.rolarParaResultado();
         } catch (erro) {
             console.warn("Falha na tradução:", erro);
@@ -181,11 +184,9 @@
     }
 
     async function carregarDemonstracao() {
-        const formato = el.demoFormato?.value;
-        if (!formato) return;
         view.definirBotao(el.btnDemo, true, "Carregando exemplo...");
         try {
-            const payload = await model.buscarDemonstracao(formato);
+            const payload = await model.buscarDemonstracao("pdf");
             selecionarArquivo(null);
             view.definirIdiomas(payload.source_lang, payload.target_lang);
             exibirResultado(payload);
@@ -266,7 +267,6 @@
 
         el.btnTraduzir?.addEventListener("click", traduzir);
         el.btnDemo?.addEventListener("click", carregarDemonstracao);
-        el.demoFormato?.addEventListener("change", view.atualizarLinkDemo);
         el.btnVerificarCatalogo?.addEventListener("click", consultarCatalogoArgos);
         el.btnInstalarModelo?.addEventListener("click", instalarModeloArgos);
         el.btnAnterior?.addEventListener("click", () => navegar(-1));
@@ -281,7 +281,6 @@
         view.mostrarMensagem(`⚠️ ${avisoServidorLocal}`, true);
     }
     registrarEventos();
-    view.atualizarLinkDemo();
     view.renderizarSlide(estado.slides, 0);
     atualizarStatusMecanismos();
     atualizarStatusArgos();

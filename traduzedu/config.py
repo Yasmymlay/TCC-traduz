@@ -47,7 +47,7 @@ MAX_EXPORT_BLOCKS = 5000
 MAX_EXPORT_TEXT_BYTES = MAX_UPLOAD_BYTES
 
 # Demonstração offline
-DEMO_FORMATS = {'pdf', 'docx', 'pptx'}
+DEMO_FORMATS = {'pdf'}
 
 
 class Config:
