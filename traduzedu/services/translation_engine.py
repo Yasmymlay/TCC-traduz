@@ -1,3 +1,9 @@
+"""Motor de tradução com fallback entre provedores (seção 6.3 da documentação).
+
+A ordem padrão é LibreTranslate (API local), Argos Translate (modelos offline)
+e DeepL (API externa opcional). O primeiro provedor que suportar o par de
+idiomas e responder corretamente é usado.
+"""
 import logging
 import os
 import time
@@ -7,9 +13,9 @@ from urllib.parse import urlparse
 
 import requests
 
+from ..models.language import SUPPORTED_LANGS as LANGUAGES
 
 LOGGER = logging.getLogger(__name__)
-LANGUAGES = {'pt', 'en', 'es'}
 
 
 class TranslationError(RuntimeError):
@@ -18,6 +24,7 @@ class TranslationError(RuntimeError):
 
 class UnsupportedLanguagePair(TranslationError):
     pass
+
 
 class _OfflineStanzaSentencizer:
     def __init__(self, model_package):
@@ -304,21 +311,6 @@ class ArgosProvider:
         if sentencizer is not None and type(sentencizer).__name__ == 'StanzaSentencizer':
             package_translation.sentencizer = _OfflineStanzaSentencizer(package_translation.pkg)
         return translation
-
-    @staticmethod
-    def _is_pathological_output(source_text, translated_text):
-        translated_text = translated_text.strip()
-        if not translated_text:
-            return True
-        if len(translated_text) > max(500, len(source_text) * 20):
-            return True
-
-        prefix = translated_text[:256]
-        for width in range(2, min(32, len(prefix) // 8) + 1):
-            repeated = translated_text[:width]
-            if translated_text.startswith(repeated * 8):
-                return True
-        return False
 
     def _translation_path(self, languages, source, target):
         source_language = next((language for language in languages if language.code == source), None)

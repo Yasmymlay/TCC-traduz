@@ -1,4 +1,4 @@
-# Tradutor de Aulas
+# Tradutor de Aulas (TraduzEdu)
 
 Aplicação local Flask para extrair texto de arquivos PDF, traduzir para
 português, inglês ou espanhol e visualizar/baixar o resultado em TXT, DOCX,
@@ -6,6 +6,19 @@ PPTX ou PDF.
 
 O envio para tradução aceita somente arquivos PDF. Os formatos de download
 continuam sendo TXT, DOCX, PPTX e PDF.
+
+## Organização do código (MVC)
+
+O código está no pacote `traduzedu/`, organizado em Model-View-Controller:
+
+- `traduzedu/models/`: estrutura do documento, idiomas e regras de texto
+- `traduzedu/views/`: `templates/index.html` e `static/` (CSS, JS e exemplos)
+- `traduzedu/controllers/`: rotas Flask (Blueprints)
+- `traduzedu/services/`: extração, OCR, tradução e exportação
+
+O frontend segue a mesma divisão: `static/js/model.js`, `view.js` e
+`controller.js`. Os detalhes e o fluxo completo estão em
+[docs/ARQUITETURA.md](docs/ARQUITETURA.md).
 
 ## Instalação e execução no Windows
 
@@ -100,7 +113,7 @@ Test-Path $tesseract
 & $tesseract --list-langs
 ```
 
-O resultado deve incluir `por`. O `app.py` localiza automaticamente o executável
+O resultado deve incluir `por`. O aplicativo (`traduzedu/services/ocr.py`) localiza automaticamente o executável
 no PATH ou no caminho padrão acima. Se instalou em outro local, configure a
 variável antes de iniciar o aplicativo:
 
@@ -115,7 +128,7 @@ real — e não apenas a instalação — execute o teste que cria um PDF compos
 somente por imagem, com palavras acentuadas, e chama o Tesseract sem mocks:
 
 ```powershell
-.\.venv\Scripts\python.exe -m unittest -v test_app.TranslationApiTests.test_real_ocr_recognizes_portuguese_accents_in_scanned_pdf
+.\.venv\Scripts\python.exe -m unittest -v tests.test_app.TranslationApiTests.test_real_ocr_recognizes_portuguese_accents_in_scanned_pdf
 ```
 
 Se Tesseract ou `por` estiver ausente, o teste será marcado como ignorado; isso
@@ -175,8 +188,11 @@ demonstração permanece disponível quando os mecanismos de tradução estão d
 ## Diagnóstico e testes
 
 ```powershell
-.\.venv\Scripts\python.exe -m unittest -v
+.\.venv\Scripts\python.exe -m unittest discover -v -s tests -t .
 ```
+
+Os testes de demonstração precisam de `traduzedu/data/demo_results.json`, que
+não está no repositório; sem ele, esses testes falham.
 
 Os testes verificam extração, validação, traduções, demonstração offline,
 geração e leitura dos formatos de download, status dos modelos e o fluxo OCR
