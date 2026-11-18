@@ -58,14 +58,50 @@ class LayoutDocument:
     pages: list
 
 
+def _is_private_use(char):
+    return '' <= char <= ''
+
+
 def _is_bullet(span):
+    # Fontes de símbolos (Wingdings, Symbol) usam a área de uso privado do
+    # Unicode para os marcadores, por exemplo U+F06E (■ da Wingdings).
     text = span['text'].strip()
-    return len(text) == 1 and text in BULLET_CHARS
+    return len(text) == 1 and (text in BULLET_CHARS or _is_private_use(text))
+
+
+def _without_private_use(text):
+    return ''.join(char for char in text if not _is_private_use(char))
+
+
+def _visible_lines(block):
+    """Linhas horizontais do bloco, sem as cópias desenhadas no mesmo lugar.
+
+    PDFs exportados do PowerPoint em "Modo de Compatibilidade" escrevem cada
+    texto duas vezes na mesma posição (o efeito de sombra), às vezes no mesmo
+    span e às vezes numa linha repetida.
+    """
+    seen = set()
+    lines = []
+    for line in block['lines']:
+        if tuple(line['dir']) != HORIZONTAL:
+            continue
+        spans = []
+        for span in line['spans']:
+            if not span['text'].strip():
+                continue
+            key = (span['text'], tuple(round(value, 1) for value in span['bbox']))
+            if key in seen:
+                continue
+            seen.add(key)
+            spans.append(span)
+        if spans:
+            lines.append({**line, 'spans': spans})
+    return lines
 
 
 def _unit_from_block(block):
-    lines = [line for line in block['lines'] if tuple(line['dir']) == HORIZONTAL]
-    spans = [span for line in lines for span in line['spans'] if span['text'].strip()]
+    lines = _visible_lines(block)
+    spans = [span for line in lines for span in line['spans']]
     if not spans:
         return None
 
@@ -80,7 +116,7 @@ def _unit_from_block(block):
         line_text = ''.join(parts).strip()
         if line_text:
             text_lines.append(line_text)
-    text = ' '.join(' '.join(text_lines).split())
+    text = ' '.join(_without_private_use(' '.join(text_lines)).split())
     if not HAS_LETTER.search(text):
         return None
 

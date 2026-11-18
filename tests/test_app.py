@@ -770,3 +770,51 @@ class DocumentModelTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class PdfLayoutUnitTests(unittest.TestCase):
+    @staticmethod
+    def span(text, bbox, font='Arial', size=10.0):
+        return {'text': text, 'bbox': bbox, 'font': font, 'size': size, 'color': 0, 'flags': 0}
+
+    def block(self, *spans):
+        return {'type': 0, 'lines': [{'dir': (1.0, 0.0), 'spans': list(spans)}]}
+
+    def test_symbol_font_bullet_is_kept_out_of_the_text_to_translate(self):
+        from traduzedu.services import pdf_layout
+        unit = pdf_layout._unit_from_block(self.block(
+            self.span('', (156.6, 177.3, 162.2, 184.8), font='Wingdings', size=7.6),
+            self.span('Custo/desempenho', (170.2, 175.5, 256.7, 185.5)),
+        ))
+        self.assertTrue(unit.bullet)
+        self.assertEqual(unit.text, 'Custo/desempenho')
+        self.assertAlmostEqual(unit.rect[0], 170.2)
+
+    def test_text_drawn_twice_in_the_same_place_is_translated_once(self):
+        from traduzedu.services import pdf_layout
+        unit = pdf_layout._unit_from_block(self.block(
+            self.span('Modularidade', (170.2, 206.7, 230.3, 216.7)),
+            self.span('Modularidade', (170.2, 206.7, 230.3, 216.7)),
+        ))
+        self.assertEqual(unit.text, 'Modularidade')
+
+    def test_private_use_symbols_inside_text_are_not_sent_for_translation(self):
+        from traduzedu.services import pdf_layout
+        unit = pdf_layout._unit_from_block(self.block(
+            self.span(' Hosts: coleção de máquinas', (10, 10, 200, 20)),
+        ))
+        self.assertEqual(unit.text, 'Hosts: coleção de máquinas')
+
+    def test_text_repeated_as_a_second_line_in_the_same_place_is_translated_once(self):
+        from traduzedu.services import pdf_layout
+        first = self.span('Desenvolvimento do software', (170.2, 533.0, 437.1, 542.9))
+        second = self.span('caro.', (170.2, 545.0, 192.4, 554.9))
+        block = {'type': 0, 'lines': [
+            {'dir': (1.0, 0.0), 'spans': [first]},
+            {'dir': (1.0, 0.0), 'spans': [dict(first)]},
+            {'dir': (1.0, 0.0), 'spans': [second]},
+            {'dir': (1.0, 0.0), 'spans': [dict(second)]},
+        ]}
+        unit = pdf_layout._unit_from_block(block)
+        self.assertEqual(unit.text, 'Desenvolvimento do software caro.')
+        self.assertEqual(unit.line_count, 2)
