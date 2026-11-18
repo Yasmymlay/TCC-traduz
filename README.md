@@ -8,6 +8,39 @@ O envio para tradução aceita somente arquivos PDF. O download é o
 **próprio PDF traduzido, com o mesmo layout**: fundos, imagens, cores e
 posições ficam iguais e só o texto muda.
 
+## Versão instalável para usuários (Windows)
+
+Quem só vai usar o sistema não precisa de Python, `.bat` nem tradutores
+instalados. Basta baixar `TradutorDeAulas-Setup-<versão>.exe` na página
+**Releases** do GitHub, executar e abrir o atalho "Tradutor de Aulas". Uma
+janela pequena aparece e o sistema abre no navegador; fechar a janela encerra
+o programa.
+
+- Instala na pasta do usuário, sem pedir permissão de administrador.
+- Já inclui os modelos de tradução Argos (português → inglês e
+  português → espanhol) e o Tesseract OCR com português, inglês e espanhol.
+- Funciona sem internet. O LibreTranslate não vem no instalador.
+- O log fica em `%LOCALAPPDATA%\TradutorDeAulas\servidor.log`.
+- O Windows pode avisar "Fornecedor desconhecido", porque o instalador não tem
+  assinatura digital. Clique em "Mais informações" e "Executar assim mesmo".
+
+### Gerar o instalador (desenvolvedores)
+
+Pré-requisitos nesta máquina: o `.venv` do projeto com o PyInstaller
+(`.venv\Scripts\python.exe -m pip install pyinstaller`), os modelos Argos
+instalados, o Tesseract em `C:\Program Files\Tesseract-OCR` e o Inno Setup 6
+(`winget install JRSoftware.InnoSetup`). Depois:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File packaging\build.ps1 -Version 1.0.0
+```
+
+O resultado fica em `dist\TradutorDeAulas-Setup-1.0.0.exe` (cerca de 280 MB).
+Os arquivos do empacotamento estão em `packaging/`: `launcher.py` (janela e
+servidor), `TradutorDeAulas.spec` (PyInstaller), `installer.iss` (Inno Setup)
+e `stubs/stanza`, que substitui o stanza para não incluir o PyTorch (mais de
+500 MB) no pacote.
+
 ## Organização do código (MVC)
 
 O código está no pacote `traduzedu/`, organizado em Model-View-Controller:
