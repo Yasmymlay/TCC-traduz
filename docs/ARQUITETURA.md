@@ -44,22 +44,24 @@ TccYas/
 │   │   ├── language.py         # idiomas suportados (pt, en, es)
 │   │   └── text.py             # limpeza e divisão do texto em trechos
 │   ├── services/
-│   │   ├── extraction.py       # leitura de PDF, DOCX e PPTX
+│   │   ├── pdf_layout.py       # texto com posição/estilo e PDF traduzido no mesmo layout
+│   │   ├── extraction.py       # leitura de PDF (e DOCX/PPTX, usados nos testes)
 │   │   ├── ocr.py              # Tesseract para PDFs digitalizados
 │   │   ├── translation.py      # tradução dos blocos preservando a estrutura
 │   │   ├── translation_engine.py  # provedores e fallback
-│   │   └── export.py           # geração de TXT, DOCX, PPTX e PDF
+│   │   ├── result_store.py     # guarda o PDF traduzido por 1 hora para download
+│   │   └── export.py           # geração de TXT, DOCX, PPTX e PDF simples
 │   ├── controllers/
 │   │   ├── pages_controller.py        # GET /
 │   │   ├── translation_controller.py  # /api/translate, /api/translation/status, /api/health, /api/demo
-│   │   ├── download_controller.py     # /api/download/<formato>
+│   │   ├── download_controller.py     # /api/download/<formato>, /api/download/translated/<id>
 │   │   └── resources_controller.py    # /api/ocr/status, /api/argos/*
 │   ├── views/
 │   │   ├── templates/index.html
 │   │   └── static/
 │   │       ├── css/style.css
 │   │       ├── js/model.js, view.js, controller.js
-│   │       └── exemplos/sample.pdf, sample.docx, sample.pptx
+│   │       └── exemplos/sample.pdf, sample-traduzido.pdf
 │   └── data/                   # demo_results.json (demonstração offline)
 ├── tests/
 │   ├── test_app.py
@@ -78,15 +80,19 @@ Professor (View)
    ▼
 POST /api/translate                                -> translation_controller
    │ 2. valida formato, tamanho e idiomas         -> models/language.py
-   │ 3. extrai o texto em blocos                  -> services/extraction.py (+ ocr.py)
-   │ 4. traduz bloco a bloco, em lotes            -> services/translation.py
+   │ 3. lê cada trecho com posição e estilo       -> services/pdf_layout.py (+ ocr.py)
+   │ 4. traduz os trechos, em lotes               -> services/translation.py
    │                                                 └─ translation_engine.py (API)
+   │ 5. apaga o texto original e escreve a        -> services/pdf_layout.py
+   │    tradução no mesmo lugar (PDF traduzido)      + services/result_store.py
    ▼
-JSON com páginas e blocos                          -> models/document.py
-   │ 5. visualização por página/slide             -> view.js
+JSON com páginas, blocos e translated_pdf_url      -> models/document.py
+   │ 6. visualização por página/slide             -> view.js
    ▼
-POST /api/download/<formato>                       -> download_controller
-   │ 6. valida e gera o arquivo                   -> models/document.py + services/export.py
+GET /api/download/translated/<id>  (padrão)        -> download_controller
+   │ 7a. devolve o PDF com o mesmo layout do original
+POST /api/download/<formato>  (pdf, docx, pptx, txt)
+   │ 7b. valida e gera um arquivo só com o texto  -> models/document.py + services/export.py
    ▼
 Arquivo traduzido baixado pelo professor
 ```
@@ -108,3 +114,22 @@ exportadores usam esses tipos para reconstruir títulos, listas e tabelas.
 | Adicionar um provedor de tradução | nova classe em `services/translation_engine.py` e registro em `TranslationEngine.from_environment` |
 | Novo formato de download | `services/export.py` (`export_document`) e `config.EXPORT_FORMATS` |
 | Mudar textos e visual da página | `views/templates/index.html` e `views/static/css/style.css` |
+
+## PDF traduzido com o mesmo layout
+
+O download padrão é o próprio PDF enviado, com o texto trocado pela tradução
+(`services/pdf_layout.py`, com PyMuPDF):
+
+1. Cada bloco de texto da página vira uma unidade com retângulo, tamanho, cor,
+   negrito/itálico e número de linhas. Marcadores de lista ficam na página.
+2. O texto original é apagado com *redaction* sem mexer em imagens, fundos e
+   desenhos.
+3. A tradução é escrita no mesmo retângulo com `insert_htmlbox`. Texto de uma
+   linha continua numa linha só (a fonte diminui se precisar); parágrafos podem
+   usar o espaço livre logo abaixo.
+4. As fontes são reduzidas aos caracteres usados (`subset_fonts`) para o
+   arquivo não ficar muito maior que o original.
+
+Limitações: texto que faz parte de uma imagem (rótulos desenhados, páginas
+digitalizadas) não é traduzido no PDF; nessas páginas o OCR, se instalado,
+aparece só na visualização.

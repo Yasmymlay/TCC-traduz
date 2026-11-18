@@ -8,6 +8,7 @@ from werkzeug.utils import secure_filename
 from ..config import EXPORT_FORMATS
 from ..models.document import validate_export_pages
 from ..services.export import export_document
+from ..services.result_store import TRANSLATED_FILES
 
 download_bp = Blueprint('download', __name__, url_prefix='/api')
 
@@ -43,4 +44,20 @@ def download_translation(format_name):
         mimetype=exported.mimetype,
         as_attachment=True,
         download_name=f'{base_name}-traduzido.{exported.extension}',
+    )
+
+
+@download_bp.route('/download/translated/<file_id>')
+def download_translated_pdf(file_id):
+    """Baixa o PDF traduzido com o mesmo layout do original."""
+    stored = TRANSLATED_FILES.get(file_id)
+    if stored is None:
+        return jsonify({
+            'error': 'O PDF traduzido não está mais disponível. Traduza o arquivo novamente.'
+        }), 404
+    return send_file(
+        io.BytesIO(stored.content),
+        mimetype='application/pdf',
+        as_attachment=True,
+        download_name=stored.filename,
     )

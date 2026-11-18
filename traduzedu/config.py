@@ -16,6 +16,8 @@ STATIC_DIR = VIEWS_DIR / 'static'
 EXAMPLES_DIR = STATIC_DIR / 'exemplos'
 DATA_DIR = PACKAGE_DIR / 'data'
 DEMO_RESULTS_PATH = DATA_DIR / 'demo_results.json'
+DEMO_TRANSLATED_PDF_STATIC = 'exemplos/sample-traduzido.pdf'
+DEMO_TRANSLATED_PDF_PATH = STATIC_DIR / DEMO_TRANSLATED_PDF_STATIC
 
 
 def _translation_total_timeout():

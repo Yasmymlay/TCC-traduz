@@ -214,11 +214,11 @@
             return;
         }
         const formato = view.formatoDownload();
-        view.definirBaixando(formato);
+        view.definirBaixando(formato === "pdf-layout" ? "pdf" : formato);
         try {
-            const { blob, nome } = await model.gerarDownload(formato);
+            const { blob, nome, extensao } = await model.gerarDownload(formato);
             view.salvarArquivo(blob, nome);
-            view.mostrarMensagem(`Arquivo ${formato.toUpperCase()} gerado e baixado.`);
+            view.mostrarMensagem(`Arquivo ${extensao.toUpperCase()} gerado e baixado.`);
         } catch (erro) {
             view.mostrarMensagem(erro.message || "Não foi possível gerar o arquivo.", true);
         } finally {

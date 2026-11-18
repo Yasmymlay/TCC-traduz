@@ -10,13 +10,13 @@ import tempfile
 import time
 from pathlib import Path
 
-from flask import Blueprint, current_app, jsonify, request
+from flask import Blueprint, current_app, jsonify, request, url_for
 from werkzeug.utils import secure_filename
 
 from .. import config
-from ..models.document import has_text
 from ..models.language import SUPPORTED_LANGS, normalize_lang
-from ..services import extraction, translation, translation_engine
+from ..services import pdf_layout, translation, translation_engine
+from ..services.result_store import TRANSLATED_FILES
 from ..services.ocr import OCRProcessingError
 
 translation_bp = Blueprint('translation', __name__, url_prefix='/api')
@@ -64,7 +64,13 @@ def demo_result(format_name):
         return jsonify({'error': 'A demonstração não está disponível.'}), 503
     if format_name not in results:
         return jsonify({'error': 'Demonstração não encontrada para este formato.'}), 404
-    return jsonify({'demo': True, **results[format_name]})
+    demo = results[format_name]
+    if config.DEMO_TRANSLATED_PDF_PATH.is_file():
+        demo = {
+            **demo,
+            'translated_pdf_url': url_for('static', filename=config.DEMO_TRANSLATED_PDF_STATIC),
+        }
+    return jsonify({'demo': True, **demo})
 
 
 def _uploaded_file_size(uploaded_file):
@@ -114,16 +120,18 @@ def _validate_upload():
     return (uploaded_file, file_ext, source_lang, target_lang), None
 
 
-def _extract_and_translate(file_path, file_ext, source_lang, target_lang):
-    """Executa extração e tradução, convertendo erros em respostas HTTP."""
+def _extract_and_translate(file_path, source_lang, target_lang):
+    """Lê o PDF e traduz mantendo o layout, convertendo erros em respostas HTTP."""
     logger = current_app.logger
     try:
-        pages = extraction.extract_document_pages(file_path, file_ext, source_lang=source_lang)
+        layout = pdf_layout.read_document(file_path, source_lang=source_lang)
     except OCRProcessingError as exc:
         logger.info('OCR could not read uploaded PDF: %s', exc)
         return None, (jsonify({'error': str(exc)}), 422)
+    except pdf_layout.NoTextFoundError as exc:
+        return None, (jsonify({'error': str(exc)}), 422)
     except Exception:
-        logger.exception('Could not read uploaded %s file', file_ext)
+        logger.exception('Could not read uploaded PDF file')
         return None, (jsonify({
             'error': (
                 'Não foi possível ler o PDF. Verifique se o arquivo está íntegro, '
@@ -131,17 +139,9 @@ def _extract_and_translate(file_path, file_ext, source_lang, target_lang):
             )
         }), 400)
 
-    if not has_text(pages):
-        return None, (jsonify({
-            'error': (
-                'Nenhum texto legível foi encontrado. Em PDFs digitalizados, '
-                'verifique se o Tesseract OCR e o pacote do idioma original estão instalados.'
-            )
-        }), 422)
-
     try:
-        translated_pages = translation.translate_document_pages(
-            pages,
+        result = translation.translate_layout_document(
+            layout,
             source_lang,
             target_lang,
             deadline=time.monotonic() + config.MAX_TRANSLATION_SECONDS,
@@ -150,18 +150,17 @@ def _extract_and_translate(file_path, file_ext, source_lang, target_lang):
         logger.info('No configured provider supports requested pair: %s', exc)
         return None, (jsonify({'error': str(exc)}), 422)
     except translation_engine.TranslationError as exc:
-        logger.exception('Translation failed for uploaded %s file', file_ext)
+        logger.exception('Translation failed for uploaded PDF file')
         status_code = 504 if 'tempo máximo' in str(exc).lower() else 503
         return None, (jsonify({'error': str(exc)}), status_code)
     except ValueError as exc:
-        logger.exception('Could not translate uploaded %s file', file_ext)
+        logger.exception('Could not translate uploaded PDF file')
         return None, (jsonify({'error': str(exc)}), 422)
     except Exception as exc:
-        logger.exception('Could not translate uploaded %s file', file_ext)
+        logger.exception('Could not translate uploaded PDF file')
         return None, (jsonify({'error': str(exc)}), 503)
 
-    warning = extraction.skipped_pages_warning(pages)
-    return (translated_pages, [warning] if warning else []), None
+    return result, None
 
 
 @translation_bp.route('/translate', methods=['POST'])
@@ -169,7 +168,7 @@ def translate_document():
     upload, error = _validate_upload()
     if error:
         return error
-    uploaded_file, file_ext, source_lang, target_lang = upload
+    uploaded_file, _file_ext, source_lang, target_lang = upload
 
     original_name = secure_filename(uploaded_file.filename)
     if not original_name:
@@ -186,20 +185,20 @@ def translate_document():
         with tempfile.TemporaryDirectory(prefix='tradutor-') as base_dir:
             file_path = os.path.join(base_dir, original_name)
             uploaded_file.save(file_path)
-            result, error = _extract_and_translate(
-                file_path, file_ext, source_lang, target_lang
-            )
+            result, error = _extract_and_translate(file_path, source_lang, target_lang)
     finally:
         uploaded_file.close()
         translation.ACTIVE_TRANSLATIONS.release(translation_key)
 
     if error:
         return error
-    translated_pages, warnings = result
+    translated_name = f'{Path(original_name).stem}-traduzido.pdf'
+    file_id = TRANSLATED_FILES.save(result.pdf_bytes, translated_name)
     return jsonify({
         'filename': original_name,
         'source_lang': source_lang,
         'target_lang': target_lang,
-        'pages': translated_pages,
-        'warnings': warnings,
+        'pages': result.pages,
+        'warnings': result.warnings,
+        'translated_pdf_url': url_for('download.download_translated_pdf', file_id=file_id),
     })

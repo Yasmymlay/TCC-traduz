@@ -445,16 +445,81 @@ class TranslationApiTests(unittest.TestCase):
             ['First slide', 'Second slide'],
         )
 
-    @patch('traduzedu.services.translation.translate_blocks', side_effect=lambda blocks, source, target, deadline=None: blocks)
-    def test_preserves_page_and_blank_slide_separation(self, _translate):
-        pages = [
-            {'page_title': 'Página 1', 'blocks': [{'type': 'paragraph', 'text': 'First page'}]},
-            {'page_title': 'Página 2', 'blocks': []},
-            {'page_title': 'Página 3', 'blocks': [{'type': 'paragraph', 'text': 'Third page'}]},
-        ]
-        result = translation.translate_document_pages(pages, 'pt', 'en')
-        self.assertEqual([page['page_title'] for page in result], ['Página 1', 'Página 2', 'Página 3'])
-        self.assertEqual(result[1]['blocks'], [])
+    @patch(
+        'traduzedu.services.translation.translate_texts',
+        side_effect=lambda texts, source, target, deadline=None: [
+            f'{target}: {text}' for text in texts
+        ],
+    )
+    def test_translated_pdf_keeps_layout_images_and_replaces_only_the_text(self, _translate):
+        source = pymupdf.open()
+        page = source.new_page(width=960, height=540)
+        image = Image.new('RGB', (40, 40), (230, 100, 20))
+        png = io.BytesIO()
+        image.save(png, format='PNG')
+        page.insert_image(pymupdf.Rect(0, 0, 960, 40), stream=png.getvalue())
+        page.insert_text((80, 120), 'Leitura de minicontos', fontsize=24, color=(0.5, 0.2, 0.5))
+        page.insert_text((80, 200), 'Colocação pronominal', fontsize=24)
+        content = source.tobytes()
+        source.close()
+
+        response = self.upload('aula.pdf', content, 'pt', 'es')
+        self.assertEqual(response.status_code, 200, response.get_json())
+        payload = response.get_json()
+        self.assertEqual(
+            [block['text'] for block in payload['pages'][0]['blocks']],
+            ['es: Leitura de minicontos', 'es: Colocação pronominal'],
+        )
+
+        download = self.client.get(payload['translated_pdf_url'])
+        self.addCleanup(download.close)
+        self.assertEqual(download.status_code, 200)
+        self.assertIn('aula-traduzido.pdf', download.headers['Content-Disposition'])
+        translated = pymupdf.open(stream=download.data, filetype='pdf')
+        try:
+            translated_page = translated[0]
+            self.assertEqual(translated_page.rect, pymupdf.Rect(0, 0, 960, 540))
+            self.assertEqual(len(translated_page.get_images()), 1)
+            words = translated_page.get_text('words')
+            text = ' '.join(word[4] for word in words)
+            self.assertIn('es: Leitura de minicontos', text)
+            self.assertEqual(text.count('Leitura'), 1)
+            first_word = next(word for word in words if word[4] == 'es:')
+            self.assertAlmostEqual(first_word[0], 80, delta=2)
+            self.assertAlmostEqual(first_word[3], 120, delta=8)
+        finally:
+            translated.close()
+
+    @patch(
+        'traduzedu.services.translation.translate_texts',
+        side_effect=lambda texts, source, target, deadline=None: [
+            'Foco en el contenido de la clase' for _text in texts
+        ],
+    )
+    def test_single_line_text_stays_on_one_line_when_translation_is_longer(self, _translate):
+        source = pymupdf.open()
+        page = source.new_page(width=960, height=540)
+        page.insert_text((40, 40), 'Foco no conteúdo', fontsize=20)
+        page.insert_text((40, 300), 'Outro bloco mais abaixo', fontsize=20)
+        content = source.tobytes()
+        source.close()
+
+        response = self.upload('faixa.pdf', content, 'pt', 'es')
+        self.assertEqual(response.status_code, 200, response.get_json())
+        download = self.client.get(response.get_json()['translated_pdf_url'])
+        self.addCleanup(download.close)
+        translated = pymupdf.open(stream=download.data, filetype='pdf')
+        try:
+            words = [w for w in translated[0].get_text('words') if w[1] < 150]
+        finally:
+            translated.close()
+        self.assertEqual(' '.join(w[4] for w in words), 'Foco en el contenido de la clase')
+        self.assertEqual(len({round(w[3]) for w in words}), 1)
+
+    def test_translated_pdf_download_reports_expired_file(self):
+        response = self.client.get('/api/download/translated/naoexiste')
+        self.assertEqual(response.status_code, 404)
+        self.assertIn('Traduza o arquivo novamente', response.get_json()['error'])
 
     @patch(
         'traduzedu.services.translation.translate_texts',
@@ -505,7 +570,7 @@ class TranslationApiTests(unittest.TestCase):
 
     def test_reports_translation_service_failure(self):
         with patch(
-            'traduzedu.services.translation.translate_document_pages',
+            'traduzedu.services.translation.translate_layout_document',
             side_effect=RuntimeError('Não foi possível conectar ao serviço de tradução.'),
         ):
             response = self.upload(
@@ -589,30 +654,32 @@ class TranslationApiTests(unittest.TestCase):
         self.assertEqual(''.join(chunks), text)
         self.assertTrue(all(0 < len(chunk) <= 1400 for chunk in chunks))
 
-    def test_translate_blocks_batches_chunks_without_changing_their_order_or_type(self):
-        blocks = [
-            {'type': 'heading', 'text': 'A title'},
-            {'type': 'paragraph', 'text': 'x' * 1500},
-            {'type': 'list-item', 'text': 'A list item'},
-            *[{'type': 'paragraph', 'text': f'Paragraph {index}'} for index in range(20)],
-        ]
+    def test_translate_texts_in_order_batches_long_texts_and_keeps_one_result_per_text(self):
+        texts = ['A title', 'x' * 1500, 'A list item', *[f'Paragraph {index}' for index in range(20)]]
         with patch(
             'traduzedu.services.translation.translate_texts',
             side_effect=lambda texts, source, target, deadline=None: [
                 f'{target}: {text}' for text in texts
             ],
         ) as translate_batch:
-            translated = translation.translate_blocks(blocks, 'pt', 'en')
+            translated = translation.translate_texts_in_order(texts, 'pt', 'en')
 
         self.assertEqual(translate_batch.call_count, 2)
-        self.assertEqual(
-            [block['type'] for block in translated],
-            ['heading', 'paragraph', 'paragraph', 'list-item'] + ['paragraph'] * 20,
-        )
-        self.assertEqual(translated[0]['text'], 'en: A title')
-        self.assertEqual(translated[1]['text'], f"en: {'x' * 1400}")
-        self.assertEqual(translated[2]['text'], f"en: {'x' * 100}")
-        self.assertEqual(translated[-1]['text'], 'en: Paragraph 19')
+        self.assertEqual(len(translated), len(texts))
+        self.assertEqual(translated[0], 'en: A title')
+        self.assertEqual(translated[1], f"en: {'x' * 1400} en: {'x' * 100}")
+        self.assertEqual(translated[-1], 'en: Paragraph 19')
+
+    def test_translated_file_store_expires_old_files(self):
+        from traduzedu.services.result_store import TranslatedFileStore
+
+        store = TranslatedFileStore(ttl_seconds=0)
+        self.assertIsNone(store.get(store.save(b'%PDF', 'a.pdf')))
+        store = TranslatedFileStore(max_items=1)
+        first = store.save(b'1', 'a.pdf')
+        second = store.save(b'2', 'b.pdf')
+        self.assertIsNone(store.get(first))
+        self.assertEqual(store.get(second).content, b'2')
 
     def test_preserves_word_table_position_in_body_order(self):
         document = Document()

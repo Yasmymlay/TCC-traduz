@@ -20,6 +20,7 @@ const TraduzEduModel = (() => {
     const estado = {
         arquivoAtual: null,
         resultadoAtual: null,
+        pdfTraduzidoUrl: null,
         slides: [],
         slideAtual: 0,
         requisicaoTraducao: null,
@@ -76,6 +77,7 @@ const TraduzEduModel = (() => {
             filename: nomeArquivo || "material",
             pages: paginas
         };
+        estado.pdfTraduzidoUrl = payload?.translated_pdf_url || null;
         estado.slides = paginas.map((pagina) => ({
             ...pagina,
             formato,
@@ -88,6 +90,7 @@ const TraduzEduModel = (() => {
     function limparResultado() {
         estado.slides = [];
         estado.resultadoAtual = null;
+        estado.pdfTraduzidoUrl = null;
         estado.slideAtual = 0;
     }
 
@@ -176,11 +179,18 @@ const TraduzEduModel = (() => {
     }
 
     async function gerarDownload(formato) {
-        const response = await fetch(`/api/download/${encodeURIComponent(formato)}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(estado.resultadoAtual)
-        });
+        // "pdf-layout": o próprio PDF enviado, com o texto traduzido no mesmo lugar.
+        const mesmoLayout = formato === "pdf-layout";
+        if (mesmoLayout && !estado.pdfTraduzidoUrl) {
+            throw new Error("O PDF com o mesmo layout não está disponível para este resultado. Escolha outro formato.");
+        }
+        const response = mesmoLayout
+            ? await fetch(estado.pdfTraduzidoUrl)
+            : await fetch(`/api/download/${encodeURIComponent(formato)}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(estado.resultadoAtual)
+            });
         if (!response.ok) {
             const payload = await lerJson(response);
             throw new Error(payload.error || "Não foi possível gerar o arquivo.");
@@ -190,7 +200,8 @@ const TraduzEduModel = (() => {
         const nomeBase = (estado.resultadoAtual.filename || "material")
             .replace(/\.[^.]+$/, "")
             .replace(/[<>:"/\\|?*\x00-\x1f]/g, "_");
-        return { blob, nome: `${nomeBase || "material"}-traduzido.${formato}` };
+        const extensao = mesmoLayout ? "pdf" : formato;
+        return { blob, nome: `${nomeBase || "material"}-traduzido.${extensao}`, extensao };
     }
 
     return {

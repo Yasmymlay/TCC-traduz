@@ -4,8 +4,10 @@ Aplicação local Flask para extrair texto de arquivos PDF, traduzir para
 português, inglês ou espanhol e visualizar/baixar o resultado em TXT, DOCX,
 PPTX ou PDF.
 
-O envio para tradução aceita somente arquivos PDF. Os formatos de download
-continuam sendo TXT, DOCX, PPTX e PDF.
+O envio para tradução aceita somente arquivos PDF. O download padrão é o
+**próprio PDF traduzido, com o mesmo layout**: fundos, imagens, cores e
+posições ficam iguais e só o texto muda. Também é possível baixar só o texto
+em PDF, DOCX, PPTX ou TXT.
 
 ## Organização do código (MVC)
 
@@ -177,7 +179,11 @@ exemplo” baixa o PDF original para testar a tradução de verdade.
 ## Formatos e limitações
 
 - Somente arquivos PDF podem ser enviados, com limite de 10 MB.
-- Os downloads TXT, DOCX, PPTX e PDF preservam páginas/slides, títulos,
+- “PDF traduzido (mesmo layout)” troca o texto no próprio PDF enviado. Texto
+  que faz parte de uma imagem (rótulos desenhados, páginas digitalizadas) não é
+  trocado, e uma tradução mais longa que o original pode usar uma fonte um pouco
+  menor para caber. O arquivo fica disponível por 1 hora depois da tradução.
+- Os downloads “PDF só com o texto”, DOCX, PPTX e TXT preservam páginas/slides, títulos,
   parágrafos, listas e linhas de tabela quando identificados. São documentos
   reconstruídos; não prometem manter o tema, as imagens ou o posicionamento
   exato do arquivo original.
