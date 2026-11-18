@@ -1,5 +1,6 @@
 import hashlib
 import io
+import re
 import tempfile
 import unittest
 from pathlib import Path
@@ -609,6 +610,14 @@ class TranslationApiTests(unittest.TestCase):
         html = response.get_data(as_text=True)
         self.assertNotIn('id="demoFormato"', html)
         self.assertIn('exemplos/sample.pdf', html)
+
+    def test_download_offers_only_the_translated_pdf(self):
+        response = self.client.get('/')
+        self.addCleanup(response.close)
+        html = response.get_data(as_text=True)
+        select = html.split('id="formatoDownload"', 1)[1].split('</select>', 1)[0]
+        options = re.findall(r'<option value="([^"]+)"[^>]*>([^<]+)</option>', select)
+        self.assertEqual(options, [('pdf-layout', 'PDF traduzido')])
 
     @patch(
         'traduzedu.services.translation_engine.provider_status',

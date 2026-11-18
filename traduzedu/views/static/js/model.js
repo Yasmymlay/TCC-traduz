@@ -182,7 +182,7 @@ const TraduzEduModel = (() => {
         // "pdf-layout": o próprio PDF enviado, com o texto traduzido no mesmo lugar.
         const mesmoLayout = formato === "pdf-layout";
         if (mesmoLayout && !estado.pdfTraduzidoUrl) {
-            throw new Error("O PDF com o mesmo layout não está disponível para este resultado. Escolha outro formato.");
+            throw new Error("O PDF traduzido não está disponível para este resultado. Traduza o arquivo novamente.");
         }
         const response = mesmoLayout
             ? await fetch(estado.pdfTraduzidoUrl)

@@ -1,13 +1,12 @@
 # Tradutor de Aulas (TraduzEdu)
 
 Aplicação local Flask para extrair texto de arquivos PDF, traduzir para
-português, inglês ou espanhol e visualizar/baixar o resultado em TXT, DOCX,
-PPTX ou PDF.
+português, inglês ou espanhol, visualizar o resultado e baixar o PDF
+traduzido.
 
-O envio para tradução aceita somente arquivos PDF. O download padrão é o
+O envio para tradução aceita somente arquivos PDF. O download é o
 **próprio PDF traduzido, com o mesmo layout**: fundos, imagens, cores e
-posições ficam iguais e só o texto muda. Também é possível baixar só o texto
-em PDF, DOCX, PPTX ou TXT.
+posições ficam iguais e só o texto muda.
 
 ## Organização do código (MVC)
 
@@ -179,17 +178,10 @@ exemplo” baixa o PDF original para testar a tradução de verdade.
 ## Formatos e limitações
 
 - Somente arquivos PDF podem ser enviados, com limite de 10 MB.
-- “PDF traduzido (mesmo layout)” troca o texto no próprio PDF enviado. Texto
+- O “PDF traduzido” troca o texto no próprio PDF enviado. Texto
   que faz parte de uma imagem (rótulos desenhados, páginas digitalizadas) não é
   trocado, e uma tradução mais longa que o original pode usar uma fonte um pouco
   menor para caber. O arquivo fica disponível por 1 hora depois da tradução.
-- Os downloads “PDF só com o texto”, DOCX, PPTX e TXT preservam páginas/slides, títulos,
-  parágrafos, listas e linhas de tabela quando identificados. São documentos
-  reconstruídos; não prometem manter o tema, as imagens ou o posicionamento
-  exato do arquivo original.
-- O texto de tabelas é preservado em linhas/células, e as páginas/slides mantêm
-  a separação. No PPTX, os blocos de texto são ordenados pela posição visual
-  (de cima para baixo e da esquerda para a direita).
 - PDFs compostos por imagens precisam do Tesseract e dos dados do idioma original
   para usar o OCR. Sem eles, páginas sem texto selecionável ficam sem tradução e
   o sistema avisa quais foram; se nenhuma página tiver texto, a tradução é recusada
