@@ -79,7 +79,7 @@ class TranslationApiTests(unittest.TestCase):
         self.assertNotIn('.pptx', file_inputs[0].lower())
         self.assertIn('Somente PDF', html)
 
-    def test_downloads_open_and_preserve_translated_document_structure(self):
+    def test_text_pdf_download_keeps_translated_content(self):
         pages = [
             {
                 'page_title': 'Página 1',
@@ -100,34 +100,7 @@ class TranslationApiTests(unittest.TestCase):
                 'blocks': [{'type': 'paragraph', 'text': 'Second page content.'}],
             },
         ]
-        payload = {'filename': 'sample.docx', 'pages': pages}
-
-        docx_response = self.client.post('/api/download/docx', json=payload)
-        self.assertEqual(docx_response.status_code, 200, docx_response.get_json())
-        self.assertIn('sample-traduzido.docx', docx_response.headers['Content-Disposition'])
-        document = Document(io.BytesIO(docx_response.data))
-        paragraph_text = '\n'.join(paragraph.text for paragraph in document.paragraphs)
-        self.assertIn('Important terms', paragraph_text)
-        self.assertIn('First item', paragraph_text)
-        self.assertIn('Conclusion', paragraph_text)
-        self.assertEqual(
-            [[cell.text for cell in row.cells] for row in document.tables[0].rows],
-            [['Term', 'Meaning'], ['Cell', 'Basic unit']],
-        )
-
-        pptx_response = self.client.post('/api/download/pptx', json=payload)
-        self.assertEqual(pptx_response.status_code, 200, pptx_response.get_json())
-        presentation = Presentation(io.BytesIO(pptx_response.data))
-        self.assertEqual(len(presentation.slides), 2)
-        first_slide = presentation.slides[0]
-        self.assertTrue(any(
-            shape.has_text_frame and shape.text == 'Introduction'
-            for shape in first_slide.shapes
-        ))
-        self.assertTrue(any(shape.has_table for shape in first_slide.shapes))
-        self.assertIn('First item', '\n'.join(
-            shape.text for shape in first_slide.shapes if shape.has_text_frame
-        ))
+        payload = {'filename': 'sample.pdf', 'pages': pages}
 
         pdf_response = self.client.post('/api/download/pdf', json=payload)
         self.assertEqual(pdf_response.status_code, 200, pdf_response.get_json())
@@ -138,10 +111,6 @@ class TranslationApiTests(unittest.TestCase):
         self.assertIn('Second page content.', pdf_text)
         self.assertIn('tradução', pdf_text)
 
-        txt_response = self.client.post('/api/download/txt', json=payload)
-        self.assertEqual(txt_response.status_code, 200)
-        self.assertIn('First item', txt_response.data.decode('utf-8-sig'))
-        self.assertIn('Second page content.', txt_response.data.decode('utf-8-sig'))
 
     def test_extracts_and_exports_unicode_accents_without_replacing_characters(self):
         accented_text = (
@@ -185,39 +154,24 @@ class TranslationApiTests(unittest.TestCase):
             )
             self.assertIn(accented_text, extracted_pdf_text)
 
-        payload = {'filename': 'accents.docx', 'pages': pages}
-        for format_name in ('txt', 'docx', 'pptx', 'pdf'):
-            with self.subTest(format=format_name):
-                response = self.client.post(
-                    f'/api/download/{format_name}',
-                    json=payload,
-                )
-                self.assertEqual(response.status_code, 200, response.get_json())
-                if format_name == 'txt':
-                    exported_text = response.data.decode('utf-8-sig')
-                elif format_name == 'docx':
-                    exported_text = '\n'.join(
-                        paragraph.text for paragraph in Document(io.BytesIO(response.data)).paragraphs
-                    )
-                elif format_name == 'pptx':
-                    exported_text = '\n'.join(
-                        shape.text
-                        for slide in Presentation(io.BytesIO(response.data)).slides
-                        for shape in slide.shapes
-                        if shape.has_text_frame
-                    )
-                else:
-                    exported_text = '\n'.join(
-                        page.extract_text() or ''
-                        for page in PdfReader(io.BytesIO(response.data)).pages
-                    )
-                self.assertIn(accented_text, exported_text)
+        response = self.client.post(
+            '/api/download/pdf',
+            json={'filename': 'accents.pdf', 'pages': pages},
+        )
+        self.assertEqual(response.status_code, 200, response.get_json())
+        exported_text = '\n'.join(
+            page.extract_text() or ''
+            for page in PdfReader(io.BytesIO(response.data)).pages
+        )
+        self.assertIn(accented_text, exported_text)
 
     def test_download_rejects_malformed_content_and_unknown_format(self):
-        response = self.client.post('/api/download/docx', json={'pages': [{'blocks': 'bad'}]})
+        response = self.client.post('/api/download/pdf', json={'pages': [{'blocks': 'bad'}]})
         self.assertEqual(response.status_code, 400)
-        response = self.client.post('/api/download/rtf', json={'pages': []})
-        self.assertEqual(response.status_code, 404)
+        for format_name in ('rtf', 'txt', 'docx', 'pptx'):
+            with self.subTest(format=format_name):
+                response = self.client.post(f'/api/download/{format_name}', json={'pages': []})
+                self.assertEqual(response.status_code, 404)
 
     @staticmethod
     def make_scanned_pdf():

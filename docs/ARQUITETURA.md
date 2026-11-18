@@ -50,11 +50,11 @@ TccYas/
 │   │   ├── translation.py      # tradução dos blocos preservando a estrutura
 │   │   ├── translation_engine.py  # provedores e fallback
 │   │   ├── result_store.py     # guarda o PDF traduzido por 1 hora para download
-│   │   └── export.py           # geração de TXT, DOCX, PPTX e PDF simples
+│   │   └── export.py           # PDF simples só com o texto (rota /api/download/pdf)
 │   ├── controllers/
 │   │   ├── pages_controller.py        # GET /
 │   │   ├── translation_controller.py  # /api/translate, /api/translation/status, /api/health, /api/demo
-│   │   ├── download_controller.py     # /api/download/<formato>, /api/download/translated/<id>
+│   │   ├── download_controller.py     # /api/download/translated/<id> e /api/download/pdf
 │   │   └── resources_controller.py    # /api/ocr/status, /api/argos/*
 │   ├── views/
 │   │   ├── templates/index.html
@@ -91,8 +91,8 @@ JSON com páginas, blocos e translated_pdf_url      -> models/document.py
    ▼
 GET /api/download/translated/<id>  (padrão)        -> download_controller
    │ 7a. devolve o PDF com o mesmo layout do original
-POST /api/download/<formato>  (pdf, docx, pptx, txt)
-   │ 7b. valida e gera um arquivo só com o texto  -> models/document.py + services/export.py
+POST /api/download/pdf  (sem botão na tela)
+   │ 7b. valida e gera um PDF só com o texto      -> models/document.py + services/export.py
    ▼
 Arquivo traduzido baixado pelo professor
 ```

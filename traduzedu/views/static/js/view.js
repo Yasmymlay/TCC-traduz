@@ -76,7 +76,7 @@ const TraduzEduView = (() => {
     }
 
     function formatoDownload() {
-        return el.formatoDownload?.value || "txt";
+        return el.formatoDownload?.value || "pdf-layout";
     }
 
     function modoSelecionado() {
